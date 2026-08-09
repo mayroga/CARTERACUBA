@@ -1,12 +1,56 @@
 import os
 from flask import Flask, render_template, request, jsonify
 from pypdf import PdfReader, PdfWriter
+import google.generativeai as genai
 import openai
 
 app = Flask(__name__)
 
-# Configura tu clave de OpenAI en Render como variable de entorno
-openai.api_key = os.getenv("OPENAI_API_KEY", "tu-clave-aqui")
+# Configuración de credenciales seguras (Variables de Entorno en Render)
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
+
+# Inicializar las APIs si las llaves están presentes
+if GEMINI_API_KEY:
+    genai.configure(api_key=GEMINI_API_KEY)
+if OPENAI_API_KEY:
+    openai.api_key = OPENAI_API_KEY
+
+def traducir_texto_con_respaldo(texto_espanol):
+    """
+    Intenta traducir primero con Gemini. 
+    Si falla, utiliza OpenAI como respaldo automático.
+    """
+    instruccion_sistema = "Traduce al inglés formal para trámites gubernamentales migratorios en EE. UU. Traduce únicamente el texto provisto, sin agregar comentarios, explicaciones ni introducciones."
+    
+    # --- INTENTO 1: GEMINI (Motor Principal) ---
+    if GEMINI_API_KEY:
+        try:
+            # Usamos el modelo estándar y rápido para tareas de texto
+            model = genai.GenerativeModel('gemini-pro')
+            prompt_completo = f"{instruccion_sistema}\n\nTexto a traducir:\n{texto_espanol}"
+            respuesta_gemini = model.generate_content(prompt_completo)
+            if respuesta_gemini.text:
+                return respuesta_gemini.text.strip()
+        except Exception as e:
+            print(f"Gemini falló: {e}. Iniciando respaldo con OpenAI...")
+
+    # --- INTENTO 2: OPENAI (Respaldo) ---
+    if OPENAI_API_KEY:
+        try:
+            completar_ia = openai.ChatCompletion.create(
+                model="gpt-3.5-turbo",
+                messages=[
+                    {"role": "system", "content": instruccion_sistema},
+                    {"role": "user", "content": texto_espanol}
+                ]
+            )
+            return completar_ia.choices.message['content'].strip()
+        except Exception as e:
+            print(f"OpenAI también falló: {e}")
+            
+    # Si ambas APIs fallan o no hay llaves configuradas, devuelve el texto original
+    return texto_espanol
 
 @app.route('/')
 def home():
@@ -22,29 +66,19 @@ def asistente():
     anumber = datos_usuario.get("anumber", "")
     empleo_espanol = datos_usuario.get("empleo", "")
 
-    # 1. TRADUCCIÓN AUTOMATIZADA CON IA (Para textos descriptivos largos)
+    # Ejecutar la traducción inteligente con el sistema de respaldo
     empleo_ingles = "N/A"
     if empleo_espanol:
-        try:
-            completar_ia = openai.ChatCompletion.create(
-                model="gpt-3.5-turbo",
-                messages=[
-                    {"role": "system", "content": "Traduce al inglés formal para trámites gubernamentales migratorios sin añadir comentarios."},
-                    {"role": "user", "content": empleo_espanol}
-                ]
-            )
-            empleo_ingles = completar_ia.choices[0].message['content'].strip()
-        except Exception:
-            empleo_ingles = empleo_espanol  # Respaldo si falla la API
+        empleo_ingles = traducir_texto_con_respaldo(empleo_espanol)
 
-    # 2. DEFINIR RUTAS DE LA PAPELERÍA
+    # Definir rutas internas del servidor
     ruta_plantilla = "static/plantillas/i485_base.pdf"
     ruta_salida = f"static/descargas/i485_{nombre}_{apellidos}.pdf"
     
     os.makedirs("static/plantillas", exist_ok=True)
     os.makedirs("static/descargas", exist_ok=True)
 
-    # 3. LLENADO Y TRADUCCIÓN TÉCNICA DEL FORMULARIO OFICIAL
+    # Llenado técnico del formulario interactivo oficial en inglés
     if os.path.exists(ruta_plantilla):
         lector_pdf = PdfReader(ruta_plantilla)
         escritor_pdf = PdfWriter()
@@ -52,8 +86,6 @@ def asistente():
         for pagina in lector_pdf.pages:
             escritor_pdf.add_page(pagina)
             
-        # Diccionario de mapeo de casillas de USCIS en inglés
-        # Estos IDs corresponden a los campos de formulario editables internos del PDF público
         campos_mapeados_pdf = {
             "Part1_FamilyName": apellidos,
             "Part1_GivenName": nombre,
@@ -70,15 +102,14 @@ def asistente():
             
         url_descarga = f"/{ruta_salida}"
     else:
-        # Modo de prueba si aún no subes el PDF base a tu carpeta
         url_descarga = "#"
 
-    # 4. RESPUESTA AL PANEL DE LA APP
+    # Preparar el texto de resolución limpia para la pantalla azul de la app
     instrucciones_cliente = f"""
     <strong>Revisión de Transcripción Completa:</strong><br>
-    • <strong>Nombre mapeado:</strong> {nombre} {apellidos}<br>
-    • <strong>Traducción de Empleo procesada:</strong> {empleo_ingles}<br><br>
-    <em>Su documento se ha estructurado siguiendo la edición oficial de USCIS. Recuerde imprimir el archivo final, firmarlo con tinta negra y anexar su examen médico en sobre cerrado (Formulario I-693) antes de enviarlo por correo postal.</em>
+    • <strong>Nombre del solicitante:</strong> {nombre} {apellidos}<br>
+    • <strong>Traducción de Ocupación (Inglés):</strong> {empleo_ingles}<br><br>
+    <em>Su Formulario I-485 público ha sido rellenado en inglés de forma automatizada por nuestro sistema. Por favor, descargue el documento, imprímalo y verifique que toda la información dictada coincida exactamente con sus documentos oficiales.</em>
     """
 
     return jsonify({
