@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>BolsilloLatino - Asistencia Inteligente</title>
+    <style>
+        body { 
+            font-size: 18px; 
+            background: #0f172a; 
+            color: #f8fafc; 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            margin: 0; 
+            padding: 20px; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            min-height: 100vh; 
+        }
+        #main-container { width: 100%; max-width: 600px; }
+        .card-limpia { 
+            background: #1e293b; 
+            border: 1px solid rgba(255, 255, 255, 0.08); 
+            border-radius: 16px; 
+            padding: 25px; 
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3); 
+            margin-bottom: 20px; 
+        }
+        input, select, button { 
+            width: 100%; 
+            padding: 14px; 
+            margin-top: 10px; 
+            border-radius: 10px; 
+            border: 1px solid #475569; 
+            background: #0f172a; 
+            color: white; 
+            font-size: 16px; 
+            box-sizing: border-box; 
+        }
+        button { background: #3b82f6; border: none; font-weight: bold; cursor: pointer; transition: background 0.2s; }
+        button:hover { background: #2563eb; }
+        .paso-oculto { display: none; }
+    </style>
+</head>
+<body>
+<div id="main-container">
+
+    <!-- CABECERA -->
+    <div class="card-limpia" style="text-align: center; padding: 15px;">
+        <h2 style="color:#60a5fa; margin:0; font-size: 26px;">BolsilloLatino</h2>
+        <p style="color: #94a3b8; margin: 4px 0 0 0; font-size: 13px;">Asesoría experta sin intermediarios</p>
+    </div>
+
+    <!-- ================= PASO 1: FORMULARIO LEY DE AJUSTE CUBANO ================= -->
+    <div id="panelFormulario" class="card-limpia">
+        <h3 style="color: #4ade80; margin-top: 0; font-size: 20px; text-align: center;">Ley de Ajuste Cubano (Formulario I-485)</h3>
+        
+        <!-- DESCARGO DE RESPONSABILIDAD PARA PROTEGER TU LLC -->
+        <div style="background: #334155; padding: 15px; border-radius: 10px; font-size: 12px; line-height: 1.4; color: #cbd5e1; margin-bottom: 20px; border-left: 4px solid #f59e0b;">
+            <strong>AVISO LEGAL DE TU_LLC_NAME:</strong> Este sistema es una herramienta tecnológica privada de transcripción y traducción automatizada de datos. No somos abogados, no somos notarios ni estamos afiliados con USCIS ni con el gobierno de EE. UU.. No proveemos asesoría legal. Los formularios oficiales son públicos y gratuitos. Al continuar, usted acepta que es el único responsable de la veracidad de la información provista.
+            <label style="display: flex; align-items: center; margin-top: 10px; font-size: 13px; color: #f8fafc; cursor: pointer;">
+                <input type="checkbox" id="chkTerminosLegales" style="width: auto; margin: 0 8px 0 0;"> Entiendo y acepto los términos de este servicio privado.
+            </label>
+        </div>
+
+        <label style="font-size: 14px;">Primer Nombre (First Name):</label>
+        <input type="text" id="i485_nombre" placeholder="Ej: Juan" required>
+        
+        <label style="font-size: 14px; margin-top: 10px; display: block;">Apellidos Completos (Last Name):</label>
+        <input type="text" id="i485_apellidos" placeholder="Ej: Pérez Rodríguez" required>
+        
+        <label style="font-size: 14px; margin-top: 10px; display: block;">Fecha de Nacimiento (DOB):</label>
+        <input type="date" id="i485_fecha_nacimiento" required>
+
+        <label style="font-size: 14px; margin-top: 10px; display: block;">Número de Extranjero / A-Number (Si aplica, 9 dígitos):</label>
+        <input type="text" id="i485_anumber" placeholder="Ej: 123456789" maxlength="9">
+
+        <label style="font-size: 14px; margin-top: 10px; display: block;">Describa su último empleo u ocupación en Cuba:</label>
+        <input type="text" id="i485_empleo" placeholder="Ej: Trabajé por cuenta propia como carpintero en La Habana">
+
+        <button id="btnProcesar" onclick="procesarFormularioI485()" style="background: #059669; margin-top: 20px;">GENERAR MI FORMULARIO EN INGLÉS</button>
+    </div>
+
+    <!-- ================= PASO 2: CORTINA DE RESOLUCIÓN FINAL ================= -->
+    <div id="ventanaCortinaLimpia" class="card-limpia paso-oculto" style="border: 2px solid #3b82f6; text-align: center;">
+        <h3 style="color: #4ade80; margin-top: 0; font-size: 20px;">FORMULARIO PROCESADO CON ÉXITO</h3>
+        <p style="color: #94a3b8; font-size: 13px; margin-bottom: 15px;">Su papelería oficial en inglés está lista para descargar</p>
+        <div id="bloqueTextoVisualLimpio" style="background:#0f172a; padding:20px; border-radius:10px; text-align:left; font-size:15px; line-height: 1.6; margin-bottom: 20px; border: 1px solid #334155;"></div>
+        <div id="zonaBotonesDescarga"></div>
+        <button onclick="volverAlFormulario()" style="background:transparent; border:1px solid #64748b; color: #cbd5e1; padding: 12px; margin-top: 15px;">← REGRESAR AL FORMULARIO</button>
+    </div>
+</div>
+
+<script>
+function procesarFormularioI485() {
+    if (!document.getElementById("chkTerminosLegales").checked) {
+        alert("Debe aceptar el aviso legal de la LLC para continuar.");
+        return;
+    }
+
+    const btn = document.getElementById("btnProcesar");
+    btn.disabled = true;
+    btn.innerText = "Traduciendo y Generando...";
+
+    const datosFormulario = {
+        nombre: document.getElementById("i485_nombre").value.trim(),
+        apellidos: document.getElementById("i485_apellidos").value.trim(),
+        nacimiento: document.getElementById("i485_fecha_nacimiento").value,
+        anumber: document.getElementById("i485_anumber").value.trim(),
+        empleo: document.getElementById("i485_empleo").value.trim()
+    };
+
+    if (!datosFormulario.nombre || !datosFormulario.apellidos || !datosFormulario.nacimiento) {
+        alert("Por favor rellene los campos obligatorios.");
+        btn.disabled = false;
+        btn.innerText = "GENERAR MI FORMULARIO EN INGLÉS";
+        return;
+    }
+
+    fetch('/api/asistente', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(datosFormulario)
+    })
+    .then(res => res.json())
+    .then(data => {
+        btn.disabled = false;
+        btn.innerText = "GENERAR MI FORMULARIO EN INGLÉS";
+        
+        // Cargar texto explicativo
+        document.getElementById("bloqueTextoVisualLimpio").innerHTML = data.respuesta;
+        
+        // Crear el botón de descarga dinámico
+        const zonaDescargas = document.getElementById("zonaBotonesDescarga");
+        zonaDescargas.innerHTML = ""; 
+        
+        const btnDescarga = document.createElement("button");
+        btnDescarga.innerText = "DESCARGAR FORMULARIO I-485 COMPLETO";
+        btnDescarga.style.background = "#2563eb";
+        btnDescarga.onclick = () => window.open(data.archivo_url, '_blank');
+        zonaDescargas.appendChild(btnDescarga);
+
+        // Intercambiar pantallas
+        document.getElementById("panelFormulario").style.display = "none";
+        document.getElementById("ventanaCortinaLimpia").style.display = "block";
+    })
+    .catch(err => {
+        btn.disabled = false;
+        btn.innerText = "GENERAR MI FORMULARIO EN INGLÉS";
+        alert("Error de comunicación con el servidor.");
+    });
+}
+
+function volverAlFormulario() {
+    document.getElementById("ventanaCortinaLimpia").style.display = "none";
+    document.getElementById("panelFormulario").style.display = "block";
+}
+</script>
+</body>
+</html>
