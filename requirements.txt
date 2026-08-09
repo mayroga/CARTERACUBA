@@ -1,3 +1,5 @@
 Flask
 pypdf
 openai
+openai
+google-generativeai
