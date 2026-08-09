@@ -10,14 +10,18 @@ app = Flask(__name__)
 # Configuración de Clave Secreta para las Sesiones del Servidor (Cargar desde Render)
 app.secret_key = os.getenv("SECRET_KEY", "carteracuba_firm_key_123")
 
-# CARGAR TUS 5 PARÁMETROS SEGUROS DESDE RENDER
+# CARGAR TUS 5 PARÁMETROS SEGUROS DESDE EL PANEL DE RENDER
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY", "")
 DEV_USER = os.getenv("DEV_USER", "admin")  
 DEV_PASS = os.getenv("DEV_PASS", "root123") 
 
-# Inicializar las APIs si los parámetros están presentes
+# TUS PARÁMETROS DE PRECIOS STRIPE EXACTOS CONFIGURADOS EN RENDER
+STRIPE_PRICE_AJUSTE = os.getenv("STRIPE_PRICE_ID1", "")
+STRIPE_PRICE_PASAPORTE = os.getenv("STRIPE_PRICE_ID2", "")
+
+# Inicializar las APIs si los parámetros están presentes en el entorno
 if GEMINI_API_KEY:
     genai.configure(api_key=GEMINI_API_KEY)
 if OPENAI_API_KEY:
@@ -57,14 +61,14 @@ def traducir_texto_con_respaldo(texto_espanol):
         except Exception as e:
             print(f"Error en OpenAI de respaldo: {e}")
             
-    # Retorno de emergencia si ambas caen
+    # Retorno de emergencia si ambas APIs fallan
     return texto_espanol
 
 @app.route('/')
 def home():
     return render_template('index.html')
 
-# ================= LOGIN DE DESARROLLADOR (TUS PARÁMETROS) =================
+# ================= LOGIN DE DESARROLLADOR =================
 @app.route('/login_dev', methods=['POST'])
 def login_dev():
     datos = request.json
@@ -77,13 +81,39 @@ def login_dev():
     else:
         return jsonify({"status": "error", "message": "Credenciales de la LLC incorrectas."})
 
-# ================= ENRUTADOR PRINCIPAL DE TRÁMITES COGNITIVOS =================
+# ================= 1. RUTA PARA INICIAR EL COBRO CON STRIPE =================
+@app.route('/api/crear_sesion_pago', methods=['POST'])
+def crear_sesion_pago():
+    datos = request.json
+    tipo_tramite = datos.get("tramite_tipo")
+    
+    # Determinar qué Price ID de Render usar según tus variables de entorno exactas
+    id_precio_elegido = STRIPE_PRICE_AJUSTE if tipo_tramite == "ajuste_cubano_i485" else STRIPE_PRICE_PASAPORTE
+    
+    if not id_precio_elegido:
+        return jsonify({"error": "Configuración de precio (Price ID) no encontrada en Render."}), 400
+
+    try:
+        # Generar la pasarela de cobro seguro alojada por Stripe
+        session_checkout = stripe.checkout.Session.create(
+            payment_method_types=['card'],
+            line_items=[{'price': id_precio_elegido, 'quantity': 1}],
+            mode='payment',
+            # Al completar el pago, Stripe devuelve al cliente redirigiendo con éxito a tu dominio
+            success_url='https://onrender.com' + tipo_tramite,
+            cancel_url='https://onrender.com',
+        )
+        return jsonify({"url": session_checkout.url})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+# ================= 2. ENRUTADOR PRINCIPAL POST-PAGO DE TRÁMITES =================
 @app.route('/api/asistente', methods=['POST'])
 def asistente():
     datos_usuario = request.json
     tipo_tramite = datos_usuario.get("tramite_tipo", "ajuste_cubano_i485")
     
-    # Asegurar la existencia de directorios de almacenamiento en Render
+    # Asegurar la existencia de los directorios de archivos estáticos en tu servidor de Render
     os.makedirs("static/plantillas", exist_ok=True)
     os.makedirs("static/descargas", exist_ok=True)
 
@@ -95,7 +125,7 @@ def asistente():
         anumber = datos_usuario.get("anumber", "")
         empleo_espanol = datos_usuario.get("empleo", "")
 
-        # Procesar traducción adaptativa
+        # Procesar traducción a través del ecosistema cognitivo dual
         empleo_ingles = "N/A"
         if empleo_espanol:
             empleo_ingles = traducir_texto_con_respaldo(empleo_espanol)
@@ -109,7 +139,7 @@ def asistente():
             for pagina in lector_pdf.pages:
                 escritor_pdf.add_page(pagina)
                 
-            # Mapeo de casillas interactivas del PDF oficial de USCIS
+            # Estampar los datos en las casillas interactivas del PDF oficial de USCIS
             campos_mapeados_pdf = {
                 "Part1_FamilyName": apellidos,
                 "Part1_GivenName": nombre,
@@ -151,7 +181,7 @@ def asistente():
             for pagina in lector_pdf.pages:
                 escritor_pdf.add_page(pagina)
                 
-            # Mapeo de casillas de la planilla de la Embajada de Cuba
+            # Estampar los datos en las casillas correspondientes a la planilla de la Embajada
             campos_pasaporte_pdf = {
                 "Nombres": nombre,
                 "Apellidos": apellidos,
