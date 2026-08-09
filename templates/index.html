@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>BolsilloLatino - Asistencia Inteligente</title>
+    <title>CarteraCuba - Asistencia Inteligente</title>
     <style>
         body { 
             font-size: 18px; 
@@ -45,78 +45,141 @@
 <body>
 <div id="main-container">
 
-    <!-- CABECERA -->
+    <!-- CABECERA PRINCIPAL -->
     <div class="card-limpia" style="text-align: center; padding: 15px;">
-        <h2 style="color:#60a5fa; margin:0; font-size: 26px;">BolsilloLatino</h2>
-        <p style="color: #94a3b8; margin: 4px 0 0 0; font-size: 13px;">Asesoría experta sin intermediarios</p>
+        <h2 style="color:#60a5fa; margin:0; font-size: 26px;">CarteraCuba</h2>
+        <p style="color: #94a3b8; margin: 4px 0 0 0; font-size: 13px;">Preparación automatizada de documentos públicos</p>
     </div>
 
-    <!-- ================= PASO 1: FORMULARIO LEY DE AJUSTE CUBANO ================= -->
-    <div id="panelFormulario" class="card-limpia">
+    <!-- ================= MENÚ PRINCIPAL DE OPCIONES ================= -->
+    <div id="menuOpciones" class="card-limpia">
+        <label style="font-size: 15px; font-weight: bold; color: #60a5fa; display: block; margin-bottom: 5px;">📁 Seleccione el trámite oficial que desea preparar:</label>
+        <select id="selectorTramite">
+            <option value="ajuste_cubano">Ley de Ajuste Cubano (Residencia Formulario I-485)</option>
+            <option value="pasaporte_cu">Pasaporte de Cuba (Renovación / Prórroga Consular)</option>
+        </select>
+        <button onclick="abrirTramiteSeleccionado()" style="background: #059669; margin-top: 15px;">INICIAR TRÁMITE SELECCIONADO</button>
+    </div>
+
+    <!-- ================= FORMULARIO LEY DE AJUSTE CUBANO (I-485) ================= -->
+    <div id="panelFormularioAjuste" class="card-limpia paso-oculto">
         <h3 style="color: #4ade80; margin-top: 0; font-size: 20px; text-align: center;">Ley de Ajuste Cubano (Formulario I-485)</h3>
         
-        <!-- DESCARGO DE RESPONSABILIDAD PARA PROTEGER TU LLC -->
+        <!-- AVISO LEGAL DE LA LLC -->
         <div style="background: #334155; padding: 15px; border-radius: 10px; font-size: 12px; line-height: 1.4; color: #cbd5e1; margin-bottom: 20px; border-left: 4px solid #f59e0b;">
-            <strong>AVISO LEGAL DE TU_LLC_NAME:</strong> Este sistema es una herramienta tecnológica privada de transcripción y traducción automatizada de datos. No somos abogados, no somos notarios ni estamos afiliados con USCIS ni con el gobierno de EE. UU.. No proveemos asesoría legal. Los formularios oficiales son públicos y gratuitos. Al continuar, usted acepta que es el único responsable de la veracidad de la información provista.
+            <strong>AVISO LEGAL:</strong> Este sistema es una herramienta tecnológica privada de transcripción y traducción automatizada de datos operada por nuestra LLC. No somos una firma de abogados, no somos notarios ni estamos afiliados con USCIS ni con ninguna agencia del gobierno de EE. UU. No proveemos asesoría legal. Los formularios oficiales son públicos y gratuitos. Al continuar, usted acepta que es el único responsable de los datos provistos.
             <label style="display: flex; align-items: center; margin-top: 10px; font-size: 13px; color: #f8fafc; cursor: pointer;">
-                <input type="checkbox" id="chkTerminosLegales" style="width: auto; margin: 0 8px 0 0;"> Entiendo y acepto los términos de este servicio privado.
+                <input type="checkbox" id="chkTerminosLegalesAjuste" style="width: auto; margin: 0 8px 0 0;"> Entiendo y acepto los términos de este servicio privado.
             </label>
         </div>
 
         <label style="font-size: 14px;">Primer Nombre (First Name):</label>
-        <input type="text" id="i485_nombre" placeholder="Ej: Juan" required>
+        <input type="text" id="i485_nombre" placeholder="Ej: Juan">
         
         <label style="font-size: 14px; margin-top: 10px; display: block;">Apellidos Completos (Last Name):</label>
-        <input type="text" id="i485_apellidos" placeholder="Ej: Pérez Rodríguez" required>
+        <input type="text" id="i485_apellidos" placeholder="Ej: Pérez Rodríguez">
         
-        <label style="font-size: 14px; margin-top: 10px; display: block;">Fecha de Nacimiento (DOB):</label>
-        <input type="date" id="i485_fecha_nacimiento" required>
+        <label style="font-size: 14px; margin-top: 10px; display: block;">Fecha de Nacimiento (MM/DD/AAAA):</label>
+        <input type="date" id="i485_fecha_nacimiento">
 
         <label style="font-size: 14px; margin-top: 10px; display: block;">Número de Extranjero / A-Number (Si aplica, 9 dígitos):</label>
         <input type="text" id="i485_anumber" placeholder="Ej: 123456789" maxlength="9">
 
-        <label style="font-size: 14px; margin-top: 10px; display: block;">Describa su último empleo u ocupación en Cuba:</label>
+        <label style="font-size: 14px; margin-top: 10px; display: block;">Describa su último empleo u ocupación en Cuba (El sistema lo traducirá):</label>
         <input type="text" id="i485_empleo" placeholder="Ej: Trabajé por cuenta propia como carpintero en La Habana">
 
-        <button id="btnProcesar" onclick="procesarFormularioI485()" style="background: #059669; margin-top: 20px;">GENERAR MI FORMULARIO EN INGLÉS</button>
+        <button id="btnProcesarAjuste" onclick="procesarFormularioI485()" style="background: #2563eb; margin-top: 20px;">GENERAR FORMULARIO EN INGLÉS</button>
+        <button onclick="regresarAlMenu()" style="background:transparent; border:1px solid #64748b; color: #cbd5e1; padding: 10px; margin-top: 10px;">← CANCELAR Y VOLVER</button>
     </div>
 
-    <!-- ================= PASO 2: CORTINA DE RESOLUCIÓN FINAL ================= -->
+    <!-- ================= FORMULARIO PASAPORTE CUBANO ================= -->
+    <div id="panelFormularioPasaporte" class="card-limpia paso-oculto">
+        <h3 style="color: #4ade80; margin-top: 0; font-size: 20px; text-align: center;">Renovación / Prórroga de Pasaporte Cubano</h3>
+        
+        <!-- AVISO LEGAL DE LA LLC -->
+        <div style="background: #334155; padding: 15px; border-radius: 10px; font-size: 12px; line-height: 1.4; color: #cbd5e1; margin-bottom: 20px; border-left: 4px solid #f59e0b;">
+            <strong>AVISO LEGAL:</strong> Este sistema es una herramienta tecnológica privada de transcripción de datos para trámites consulares operada por nuestra LLC. No somos el consulado de Cuba, no somos funcionarios de gobierno, ni proveemos asesoría legal. Los formularios oficiales son públicos y gratuitos. Al continuar, usted acepta que llena este documento bajo su propia responsabilidad.
+            <label style="display: flex; align-items: center; margin-top: 10px; font-size: 13px; color: #f8fafc; cursor: pointer;">
+                <input type="checkbox" id="chkTerminosLegalesPasaporte" style="width: auto; margin: 0 8px 0 0;"> Entiendo y acepto los términos de este servicio privado.
+            </label>
+        </div>
+
+        <label style="font-size: 14px;">Tipo de Trámite Consular:</label>
+        <select id="pcu_tipo">
+            <option value="renovacion">Renovación por Pasaporte Vencido</option>
+            <option value="prorroga">Prórroga de Pasaporte (2 años)</option>
+            <option value="primera_vez">Pasaporte por Primera Vez</option>
+        </select>
+
+        <label style="font-size: 14px; margin-top: 10px; display: block;">Nombres Completos (Como aparece en su certificación de nacimiento):</label>
+        <input type="text" id="pcu_nombre" placeholder="Ej: Carlos Manuel">
+        
+        <label style="font-size: 14px; margin-top: 10px; display: block;">Apellidos Completos:</label>
+        <input type="text" id="pcu_apellidos" placeholder="Ej: Gómez López">
+
+        <label style="font-size: 14px; margin-top: 10px; display: block;">Número de Pasaporte Cubano Actual (Si lo tiene):</label>
+        <input type="text" id="pcu_numero" placeholder="Ej: H123456" maxlength="7">
+
+        <label style="font-size: 14px; margin-top: 10px; display: block;">Provincia de Nacimiento en Cuba:</label>
+        <input type="text" id="pcu_provincia" placeholder="Ej: La Habana">
+
+        <label style="font-size: 14px; margin-top: 10px; display: block;">Fecha de Salida de Cuba (MM/DD/AAAA):</label>
+        <input type="date" id="pcu_fecha_salida">
+
+        <button id="btnProcesarPasaporte" onclick="procesarPasaporteCubano()" style="background: #2563eb; margin-top: 20px;">GENERAR SOLICITUD CONSULAR</button>
+        <button onclick="regresarAlMenu()" style="background:transparent; border:1px solid #64748b; color: #cbd5e1; padding: 10px; margin-top: 10px;">← CANCELAR Y VOLVER</button>
+    </div>
+
+    <!-- ================= CORTINA DE ENTREGA FINAL ================= -->
     <div id="ventanaCortinaLimpia" class="card-limpia paso-oculto" style="border: 2px solid #3b82f6; text-align: center;">
-        <h3 style="color: #4ade80; margin-top: 0; font-size: 20px;">FORMULARIO PROCESADO CON ÉXITO</h3>
-        <p style="color: #94a3b8; font-size: 13px; margin-bottom: 15px;">Su papelería oficial en inglés está lista para descargar</p>
+        <h3 style="color: #4ade80; margin-top: 0; font-size: 20px;">DOCUMENTO PROCESADO CON ÉXITO</h3>
+        <p style="color: #94a3b8; font-size: 13px; margin-bottom: 15px;">Su papelería oficial está lista para descargar</p>
         <div id="bloqueTextoVisualLimpio" style="background:#0f172a; padding:20px; border-radius:10px; text-align:left; font-size:15px; line-height: 1.6; margin-bottom: 20px; border: 1px solid #334155;"></div>
         <div id="zonaBotonesDescarga"></div>
-        <button onclick="volverAlFormulario()" style="background:transparent; border:1px solid #64748b; color: #cbd5e1; padding: 12px; margin-top: 15px;">← REGRESAR AL FORMULARIO</button>
+        <button onclick="reiniciarFlujo()" style="background:transparent; border:1px solid #64748b; color: #cbd5e1; padding: 12px; margin-top: 15px;">← PREPARAR OTRO DOCUMENTO</button>
     </div>
 </div>
 
 <script>
+function abrirTramiteSeleccionado() {
+    const tramite = document.getElementById("selectorTramite").value;
+    document.getElementById("menuOpciones").style.display = "none";
+    
+    if (tramite === "ajuste_cubano") {
+        document.getElementById("panelFormularioAjuste").style.display = "block";
+    } else if (tramite === "pasaporte_cu") {
+        document.getElementById("panelFormularioPasaporte").style.display = "block";
+    }
+}
+
+function regresarAlMenu() {
+    document.getElementById("panelFormularioAjuste").style.display = "none";
+    document.getElementById("panelFormularioPasaporte").style.display = "none";
+    document.getElementById("menuOpciones").style.display = "block";
+}
+
 function procesarFormularioI485() {
-    if (!document.getElementById("chkTerminosLegales").checked) {
-        alert("Debe aceptar el aviso legal de la LLC para continuar.");
+    if (!document.getElementById("chkTerminosLegalesAjuste").checked) {
+        alert("Debe marcar la casilla aceptando el aviso legal de la LLC para poder procesar la papelería pública.");
         return;
     }
-
-    const btn = document.getElementById("btnProcesar");
+    const btn = document.getElementById("btnProcesarAjuste");
     btn.disabled = true;
-    btn.innerText = "Traduciendo y Generando...";
-
+    btn.innerText = "Procesando y Generando PDF...";
     const datosFormulario = {
+        tramite_tipo: "ajuste_cubano_i485",
         nombre: document.getElementById("i485_nombre").value.trim(),
         apellidos: document.getElementById("i485_apellidos").value.trim(),
         nacimiento: document.getElementById("i485_fecha_nacimiento").value,
         anumber: document.getElementById("i485_anumber").value.trim(),
         empleo: document.getElementById("i485_empleo").value.trim()
     };
-
     if (!datosFormulario.nombre || !datosFormulario.apellidos || !datosFormulario.nacimiento) {
-        alert("Por favor rellene los campos obligatorios.");
+        alert("Por favor rellene los campos obligatorios de identificación.");
         btn.disabled = false;
-        btn.innerText = "GENERAR MI FORMULARIO EN INGLÉS";
+        btn.innerText = "GENERAR FORMULARIO EN INGLÉS";
         return;
     }
-
     fetch('/api/asistente', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -125,35 +188,86 @@ function procesarFormularioI485() {
     .then(res => res.json())
     .then(data => {
         btn.disabled = false;
-        btn.innerText = "GENERAR MI FORMULARIO EN INGLÉS";
-        
-        // Cargar texto explicativo
-        document.getElementById("bloqueTextoVisualLimpio").innerHTML = data.respuesta;
-        
-        // Crear el botón de descarga dinámico
-        const zonaDescargas = document.getElementById("zonaBotonesDescarga");
-        zonaDescargas.innerHTML = ""; 
-        
-        const btnDescarga = document.createElement("button");
-        btnDescarga.innerText = "DESCARGAR FORMULARIO I-485 COMPLETO";
-        btnDescarga.style.background = "#2563eb";
-        btnDescarga.onclick = () => window.open(data.archivo_url, '_blank');
-        zonaDescargas.appendChild(btnDescarga);
-
-        // Intercambiar pantallas
-        document.getElementById("panelFormulario").style.display = "none";
-        document.getElementById("ventanaCortinaLimpia").style.display = "block";
+        btn.innerText = "GENERAR FORMULARIO EN INGLÉS";
+        mostrarCortinaFinal(data);
     })
     .catch(err => {
         btn.disabled = false;
-        btn.innerText = "GENERAR MI FORMULARIO EN INGLÉS";
-        alert("Error de comunicación con el servidor.");
+        btn.innerText = "GENERAR FORMULARIO EN INGLÉS";
+        alert("Error al conectar con el motor del servidor.");
     });
 }
 
-function volverAlFormulario() {
+function procesarPasaporteCubano() {
+    if (!document.getElementById("chkTerminosLegalesPasaporte").checked) {
+        alert("Debe marcar la casilla aceptando el aviso legal de la LLC para poder procesar la solicitud.");
+        return;
+    }
+    const btn = document.getElementById("btnProcesarPasaporte");
+    btn.disabled = true;
+    btn.innerText = "Estructurando Planilla Consular...";
+    const datosPasaporte = {
+        tramite_tipo: "pasaporte_cubano_consular",
+        tipo: document.getElementById("pcu_tipo").value,
+        nombre: document.getElementById("pcu_nombre").value.trim(),
+        apellidos: document.getElementById("pcu_apellidos").value.trim(),
+        pasaporte_num: document.getElementById("pcu_numero").value.trim(),
+        provincia: document.getElementById("pcu_provincia").value.trim(),
+        salida_cuba: document.getElementById("pcu_fecha_salida").value
+    };
+    if (!datosPasaporte.nombre || !datosPasaporte.apellidos) {
+        alert("El nombre y apellidos son obligatorios.");
+        btn.disabled = false;
+        btn.innerText = "GENERAR SOLICITUD CONSULAR";
+        return;
+    }
+    fetch('/api/asistente', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(datosPasaporte)
+    })
+    .then(res => res.json())
+    .then(data => {
+        btn.disabled = false;
+        btn.innerText = "GENERAR SOLICITUD CONSULAR";
+        mostrarCortinaFinal(data);
+    })
+    .catch(err => {
+        btn.disabled = false;
+        btn.innerText = "GENERAR SOLICITUD CONSULAR";
+        alert("Error al conectar con el servidor.");
+    });
+}
+
+function mostrarCortinaFinal(data) {
+    document.getElementById("bloqueTextoVisualLimpio").innerHTML = data.respuesta;
+    const zonaDescargas = document.getElementById("zonaBotonesDescarga");
+    zonaDescargas.innerHTML = "";
+    const btnDescarga = document.createElement("button");
+    btnDescarga.innerText = "DESCARGAR MI DOCUMENTO OFICIAL";
+    btnDescarga.style.background = "#059669";
+    btnDescarga.onclick = () => window.open(data.archivo_url, '_blank');
+    zonaDescargas.appendChild(btnDescarga);
+    document.getElementById("panelFormularioAjuste").style.display = "none";
+    document.getElementById("panelFormularioPasaporte").style.display = "none";
+    document.getElementById("ventanaCortinaLimpia").style.display = "block";
+}
+
+function reiniciarFlujo() {
     document.getElementById("ventanaCortinaLimpia").style.display = "none";
-    document.getElementById("panelFormulario").style.display = "block";
+    document.getElementById("menuOpciones").style.display = "block";
+    document.getElementById("chkTerminosLegalesAjuste").checked = false;
+    document.getElementById("chkTerminosLegalesPasaporte").checked = false;
+    document.getElementById("i485_nombre").value = "";
+    document.getElementById("i485_apellidos").value = "";
+    document.getElementById("i485_fecha_nacimiento").value = "";
+    document.getElementById("i485_anumber").value = "";
+    document.getElementById("i485_empleo").value = "";
+    document.getElementById("pcu_nombre").value = "";
+    document.getElementById("pcu_apellidos").value = "";
+    document.getElementById("pcu_numero").value = "";
+    document.getElementById("pcu_provincia").value = "";
+    document.getElementById("pcu_fecha_salida").value = "";
 }
 </script>
 </body>
