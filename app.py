@@ -100,8 +100,8 @@ def crear_sesion_pago():
             line_items=[{'price': id_precio_elegido, 'quantity': 1}],
             mode='payment',
             # Al completar el pago, Stripe devuelve al cliente redirigiendo con éxito a tu dominio
-            success_url='https://onrender.com' + tipo_tramite,
-            cancel_url='https://onrender.com',
+            success_url='https://carteracuba.onrender.com' + tipo_tramite,
+            cancel_url='https://carteracuba.onrender.com',
         )
         return jsonify({"url": session_checkout.url})
     except Exception as e:
