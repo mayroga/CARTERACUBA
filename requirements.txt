@@ -1,5 +1,6 @@
 Flask
 pypdf
 openai
-openai
 google-generativeai
+gunicorn
+stripe
