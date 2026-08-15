@@ -3,53 +3,69 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>CarteraCuba - Asistencia Inteligente</title>
   <title>CarteraCuba - Asistencia Inteligente 24H</title>
   <style>
+    /* Estilos CSS Base Oficiales de CarteraCuba */
+    body { font-size: 18px; background: #0f172a; color: #f8fafc; font-family: sans-serif; margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+    #main-container { width: 100%; max-width: 600px; }
     body { font-size: 16px; background: #0f172a; color: #f8fafc; font-family: sans-serif; margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
     #main-container { width: 100%; max-width: 650px; }
     .card-limpia { background: #1e293b; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 16px; padding: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.3); margin-bottom: 20px; }
+    input, select, button { width: 100%; padding: 14px; margin-top: 10px; border-radius: 10px; border: 1px solid #475569; background: #0f172a; color: white; font-size: 16px; box-sizing: border-box; }
     input, select, button, textarea { width: 100%; padding: 12px; margin-top: 8px; border-radius: 8px; border: 1px solid #475569; background: #0f172a; color: white; font-size: 15px; box-sizing: border-box; }
     button { background: #3b82f6; border: none; font-weight: bold; cursor: pointer; transition: background 0.2s; }
     button:hover { background: #2563eb; }
     .paso-oculto { display: none; }
+    label { font-size: 14px; color: #94a3b8; display: block; margin-top: 12px; }
     label { font-size: 13px; color: #60a5fa; display: block; margin-top: 14px; font-weight: bold; }
     .seccion-titulo { font-size: 14px; color: #f59e0b; background: #1e293b; padding: 6px 10px; border-left: 4px solid #f59e0b; margin-top: 20px; font-weight: bold; }
     .aviso-legal { font-size: 11px; color: #94a3b8; line-height: 1.4; background: #0f172a; padding: 12px; border-radius: 8px; border: 1px solid #334155; margin-bottom: 15px; }
     .checkbox-container { display: flex; align-items: flex-start; gap: 10px; margin-top: 10px; font-size: 13px; color: #cbd5e1; }
     .checkbox-container input { width: auto; margin-top: 3px; }
-    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-  </style>
-</head>
+@@ -23,111 +23,131 @@
 <body>
 <div id="main-container">
-  
+
+  <!-- CABECERA DE LA MARCA -->
   <!-- CABECERA -->
   <div class="card-limpia" style="text-align: center; padding: 15px;">
     <h2 style="color:#60a5fa; margin:0; font-size: 26px;">CarteraCuba</h2>
+    <p style="color: #94a3b8; margin: 4px 0 0 0; font-size: 13px;">Preparación automatizada de documentos públicos</p>
     <p style="color: #94a3b8; margin: 4px 0 0 0; font-size: 13px;">Procesamiento e Inyección Automatizada de Planillas Oficiales</p>
   </div>
 
+  <!-- MENÚ PRINCIPAL DE OPCIONES -->
   <!-- MENÚ PRINCIPAL -->
   <div id="menuOpciones" class="card-limpia">
+    <label style="font-size: 15px; color: #60a5fa; margin-top: 0;">📁 Seleccione el trámite oficial que desea preparar:</label>
     <label style="font-size: 15px; color: #60a5fa; margin-top: 0;">📁 Seleccione el trámite oficial que desea rellenar:</label>
     <select id="selectorTramite">
+      <option value="ajuste_cubano">Ley de Ajuste Cubano (Residencia Formulario I-485)</option>
       <option value="ajuste_cubano">Ley de Ajuste Cubano (Formulario Completo I-485)</option>
       <option value="pasaporte_cubano_consular">Pasaporte de Cuba (Renovación / Prórroga Consular)</option>
     </select>
+    <button onclick="abrirTramiteSeleccionado()" style="background: #059669; margin-top: 20px; font-size: 16px;">INICIAR TRÁMITE SELECCIONADO</button>
     <button onclick="abrirTramiteSeleccionado()" style="background: #059669; margin-top: 20px;">INICIAR LLENADO AUTOMÁTICO</button>
   </div>
 
+  <!-- FLUJO PANEL: LEY DE AJUSTE CUBANO -->
   <!-- FLUJO: FORMULARIO AGENCIA COMPLETO I-485 -->
   <div id="panelFormularioAjuste" class="card-limpia paso-oculto">
+    <h3 style="margin-top: 0; color: #60a5fa;">Ley de Ajuste Cubano (Formulario I-485)</h3>
     <h3 style="margin-top: 0; color: #60a5fa;">Cuestionario Federal I-485 (Residencia Permanente)</h3>
     <div class="aviso-legal">
+      <strong>AVISO LEGAL:</strong> Herramienta privada de transcripción de datos. No estamos afiliados a USCIS ni a ninguna agencia federal. Al continuar, usted acepta toda la responsabilidad.
       <strong>CONTROL DE CALIDAD COMERCIAL:</strong> Los datos ingresados serán inyectados directamente mediante código en el documento oficial de [USCIS](https://uscis.gov). Revise su ortografía. El espacio de firma se mantendrá en blanco para su rúbrica física obligatoria.
     </div>
     <div class="checkbox-container">
       <input type="checkbox" id="chkTerminosLegalesAjuste" />
+      <label for="chkTerminosLegalesAjuste" style="margin-top:0; color:#e2e8f0; cursor:pointer;">Entiendo y acepto los términos de este servicio privado.</label>
       <label for="chkTerminosLegalesAjuste" style="margin-top:0; color:#e2e8f0; cursor:pointer;">Confirmo que los datos provistos son verídicos y coinciden con mi pasaporte.</label>
     </div>
 
+    <label>Primer Nombre (First Name):</label>
+    <input type="text" id="i485_nombre" placeholder="Ej. Juan" />
     <!-- SECCIÓN 1: DATOS PERSONALES -->
     <div class="seccion-titulo">PARTE 1: INFORMACIÓN SOBRE USTED (IDENTIDAD)</div>
     
@@ -59,10 +75,13 @@
     <label>Primer Nombre (Given Name / First Name):</label>
     <input type="text" id="i485_nombre" placeholder="Ej. JUAN" oninput="forzarMayusculas(this)" />
 
+    <label>Apellidos Completos (Last Name):</label>
+    <input type="text" id="i485_apellidos" placeholder="Ej. Pérez Gómez" />
     <label>Segundo Nombre (Middle Name - Si no tiene, déjelo vacío):</label>
     <input type="text" id="i485_segundo_nombre" placeholder="Ej. ANTONIO" oninput="forzarMayusculas(this)" />
 
     <label>Fecha de Nacimiento (MM/DD/AAAA):</label>
+    <input type="text" id="i485_fecha_nacimiento" placeholder="Ej. 10/24/1995" />
     <input type="text" id="i485_fecha_nacimiento" placeholder="Ej. 10/24/1995" oninput="formatearFechaMecanica(this)" maxlength="10" />
 
     <label>Sexo biológico:</label>
@@ -71,42 +90,76 @@
       <option value="F">Femenino (Female)</option>
     </select>
 
+    <label>Número de Extranjero / A-Number (Si aplica, 9 dígitos):</label>
     <label>Ciudad o Pueblo de Nacimiento en Cuba:</label>
     <input type="text" id="i485_ciudad_nacimiento" placeholder="Ej. CAMAGÜEY" oninput="forzarMayusculas(this)" />
 
     <label>Número de Extranjero / A-Number (9 dígitos - Si no tiene, deje vacío):</label>
     <input type="text" id="i485_anumber" placeholder="Ej. 123456789" />
 
+    <label>Describa su último empleo u ocupación en Cuba:</label>
+    <input type="text" id="i485_empleo" placeholder="Ej. Especialista en redes eléctricas" />
     <label>Número de Cuenta en Línea de USCIS (Si posee, 12 dígitos):</label>
     <input type="text" id="i485_uscis_online" placeholder="Ej. 987654321012" />
 
+    <button onclick="procesarFormularioI485()" style="background: #2563eb; margin-top: 20px;">GENERAR FORMULARIO EN INGLÉS</button>
+    <button onclick="regresarAlMenu()" style="background:transparent; border:1px solid #475569; color: #94a3b8; margin-top: 10px;">← CANCELAR Y VOLVER</button>
+  </div>
     <!-- SECCIÓN 2: HISTORIAL DE ENTRADA A EE.UU. -->
     <div class="seccion-titulo">PARTE 2: DETALLES DE SU ÚLTIMA ENTRADA A LOS EE.UU.</div>
 
+  <!-- FLUJO PANEL: PASAPORTE CUBANO CONSULAR -->
+  <div id="panelFormularioPasaporte" class="card-limpia paso-oculto">
+    <h3 style="margin-top: 0; color: #60a5fa;">Renovación / Prórroga de Pasaporte Cubano</h3>
+    <div class="aviso-legal">
+      <strong>AVISO LEGAL:</strong> Herramienta privada de transcripción de datos. No somos el consulado cubano ni gestionamos visas directas. Al continuar, usted acepta la responsabilidad.
+    </div>
+    <div class="checkbox-container">
+      <input type="checkbox" id="chkTerminosLegalesPasaporte" />
+      <label for="chkTerminosLegalesPasaporte" style="margin-top:0; color:#e2e8f0; cursor:pointer;">Entiendo y acepto los términos de este servicio privado.</label>
+    </div>
     <label>Número de Pasaporte Utilizado:</label>
     <input type="text" id="i485_pasaporte_num" placeholder="Ej. CU123456" oninput="forzarMayusculas(this)" />
 
+    <label>Tipo de Trámite Consular:</label>
+    <select id="pcu_tipo">
+      <option value="renovacion">Renovación por Pasaporte Vencido</option>
+      <option value="prorroga">Prórroga de Pasaporte (2 años)</option>
+    </select>
     <label>Fecha de Expiración del Pasaporte (MM/DD/AAAA):</label>
     <input type="text" id="i485_pasaporte_exp" placeholder="Ej. 12/05/2028" oninput="formatearFechaMecanica(this)" maxlength="10" />
 
+    <label>Nombres Completos:</label>
+    <input type="text" id="pcu_nombre" placeholder="Ej. Carlos Eduardo" />
     <label>Fecha de su última llegada a EE.UU. (MM/DD/AAAA):</label>
     <input type="text" id="i485_fecha_llegada" placeholder="Fecha de entrada" oninput="formatearFechaMecanica(this)" maxlength="10" />
 
+    <label>Apellidos Completos:</label>
+    <input type="text" id="pcu_apellidos" placeholder="Ej. Rodríguez Silva" />
     <label>Lugar o Puerto de Entrada (Ciudad y Estado):</label>
     <input type="text" id="i485_puerto_entrada" placeholder="Ej. MIAMI, FL" oninput="forzarMayusculas(this)" />
 
+    <label>Número de Pasaporte Cubano Actual (Si lo tiene):</label>
+    <input type="text" id="pcu_numero" placeholder="Ej. CU123456" />
     <label>Estatus migratorio al entrar (Ej: Parolee, I-220A):</label>
     <input type="text" id="i485_estatus_entrada" placeholder="Ej. PAROLEE" oninput="forzarMayusculas(this)" />
 
+    <label>Provincia de Nacimiento en Cuba:</label>
+    <input type="text" id="pcu_provincia" placeholder="Ej. Camagüey" />
     <!-- SECCIÓN 3: HISTORIAL LABORAL -->
     <div class="seccion-titulo">PARTE 3: HISTORIAL DE EMPLEO RECIENTE</div>
     
     <label>Empresa o trabajo actual en EE.UU. (Si no trabaja, ponga "UNEMPLOYED"):</label>
     <input type="text" id="i485_empleo_usa" placeholder="Ej. WALMART" oninput="forzarMayusculas(this)" />
 
+    <label>Fecha de Salida de Cuba (MM/DD/AAAA):</label>
+    <input type="text" id="pcu_fecha_salida" placeholder="Ej. 05/12/2018" />
     <label>Describa en español su último empleo u ocupación formal en Cuba (La IA lo traducirá al inglés):</label>
     <textarea id="i485_empleo_cuba" rows="2" placeholder="Ej. Fui profesor de secundaria o mecánico"></textarea>
 
+    <button onclick="procesarPasaporteCubano()" style="background: #2563eb; margin-top: 20px;">GENERAR SOLICITUD CONSULAR</button>
+    <button onclick="regresarAlMenu()" style="background:transparent; border:1px solid #475569; color: #94a3b8; margin-top: 10px;">← CANCELAR Y VOLVER</button>
+  </div>
     <!-- SECCIÓN 4: PREGUNTAS DE SEGURIDAD -->
     <div class="seccion-titulo">PARTE 4: DECLARACIONES Y SEGURIDAD</div>
     
@@ -125,222 +178,192 @@
     <button onclick="procesarFormularioI485()" style="background: #2563eb; margin-top: 25px; font-size: 16px;">GENERAR REVISIÓN DE EXPEDIENTE</button>
     <button onclick="regresarAlMenu()" style="background:transparent; border:1px solid #475569; color: #94a3b8; margin-top: 10px;">← VOLVER AL MENÚ</button>
   </div>
-    <!-- FLUJO: FORMULARIO PASAPORTE CUBANO CONSULAR -->
-    <div id="panelFormularioPasaporte" class="card-limpia paso-oculto">
-      <h3 style="margin-top: 0; color: #60a5fa;">Planilla Consular de Cuba (Pasaporte / Prórroga)</h3>
-      <div class="aviso-legal">
-        <strong>AVISO CONSULAR:</strong> Los datos rellenados por el asistente se adaptan a los requerimientos de las oficinas consulares cubanas en el exterior. Asegúrese de revisar la exactitud de sus nombres y números de pasaporte anteriores.
+  <!-- PANTALLA INTERMEDIA: REVISIÓN VISUAL Y CONFIRMACIÓN -->
+  <div id="ventanaConfirmacionDatos" class="card-limpia paso-oculto" style="border: 2px solid #f59e0b;">
+    <h3 style="color: #f59e0b; margin-top: 0; font-size: 20px; text-align: center;">🔍 VERIFIQUE SUS DATOS ANTES DEL PAGO</h3>
+    <div id="resumenDatosCliente" style="background:#0f172a; padding:15px; border-radius:10px; margin-bottom: 20px; border: 1px solid #334155; font-size: 15px; line-height: 1.5;"></div>
+    <div id="resumenDatosCliente" style="background:#0f172a; padding:15px; border-radius:10px; margin-bottom: 20px; border: 1px solid #334155; font-size: 15px; line-height: 1.6;"></div>
+
+    <button id="btnPagarConfirmado" style="background: #059669; font-weight: bold; font-size: 17px;">✔ TODO ESTÁ CORRECTO, IR AL PAGO</button>
+
+    <!-- ACCESO RÁPIDO PARA DESARROLLADORES CON CREDENCIALES DE RENDER -->
+    <!-- ACCESO GRATUITO DESARROLLADOR INTEGRADO -->
+    <div style="margin-top: 20px; padding: 15px; border-top: 1px dashed #475569; text-align: left;">
+      <p style="font-size: 12px; color: #f59e0b; margin: 0 0 8px 0; font-weight: bold;">🛠️ PANEL DE DESARROLLADOR (ENTRADA GRATIS):</p>
+      <div style="display: flex; gap: 8px;">
+        <input type="text" id="dev_usuario" placeholder="Usuario Dev" style="margin-top:0; padding:8px; font-size:13px;" />
+        <input type="password" id="dev_password" placeholder="Contraseña Dev" style="margin-top:0; padding:8px; font-size:13px;" />
       </div>
-      <div class="checkbox-container">
-        <input type="checkbox" id="chkTerminosLegalesPasaporte" />
-        <label for="chkTerminosLegalesPasaporte" style="margin-top:0; color:#e2e8f0; cursor:pointer;">Confirmo que la información suministrada es correcta.</label>
-      </div>
-
-      <label>Tipo de Trámite Consular:</label>
-      <select id="pcu_tipo">
-        <option value="nuevo_pasaporte">Solicitud de Nuevo Pasaporte Cubano</option>
-        <option value="prorroga">Prórroga de Pasaporte</option>
-      </select>
-
-      <label>Primer Nombre (Como en el pasaporte anterior):</label>
-      <input type="text" id="pcu_nombre" placeholder="Ej. CARLOS" oninput="forzarMayusculas(this)" />
-
-      <label>Apellidos Completos:</label>
-      <input type="text" id="pcu_apellidos" placeholder="Apellidos" oninput="forzarMayusculas(this)" />
-
-      <label>Número de Pasaporte Actual o Anterior (Si posee):</label>
-      <input type="text" id="pcu_numero" placeholder="Ej. P1234567" oninput="forzarMayusculas(this)" />
-
-      <label>Provincia de Nacimiento en Cuba:</label>
-      <input type="text" id="pcu_provincia" placeholder="Ej. LA HABANA" oninput="forzarMayusculas(this)" />
-
-      <label>Fecha de Salida de Cuba (MM/DD/AAAA):</label>
-      <input type="text" id="pcu_fecha_salida" placeholder="Ej. 05/12/2018" oninput="formatearFechaMecanica(this)" maxlength="10" />
-
-      <button onclick="procesarPasaporteCubano()" style="background: #059669; margin-top: 25px; font-size: 16px;">GENERAR REVISIÓN CONSULAR</button>
-      <button onclick="regresarAlMenu()" style="background:transparent; border:1px solid #475569; color: #94a3b8; margin-top: 10px;">← VOLVER AL MENÚ</button>
+      <button onclick="verificarAccesoGratuitoDesarrollador()" style="background: #d97706; padding: 8px; font-size: 13px; margin-top: 8px;">Procesar gratis como Desarrollador</button>
+      <button onclick="verificarAccesoGratuitoDesarrollador()" style="background: #d97706; padding: 8px; font-size: 13px; margin-top: 8px; width: auto; font-weight: bold;">Procesar gratis como Desarrollador</button>
     </div>
 
-    <!-- PANTALLA INTERMEDIA: REVISIÓN VISUAL Y CONFIRMACIÓN -->
-    <div id="ventanaConfirmacionDatos" class="card-limpia paso-oculto" style="border: 2px solid #f59e0b;">
-      <h3 style="color: #f59e0b; margin-top: 0; font-size: 20px; text-align: center;">🔍 VERIFIQUE SUS DATOS ANTES DEL PAGO</h3>
-      <div id="resumenDatosCliente" style="background:#0f172a; padding:15px; border-radius:10px; margin-bottom: 20px; border: 1px solid #334155; font-size: 15px; line-height: 1.6;"></div>
-      
-      <button id="btnPagarConfirmado" style="background: #059669; font-weight: bold; font-size: 17px;">✔ TODO ESTÁ CORRECTO, IR AL PAGO</button>
-      
-      <!-- ACCESO GRATUITO DESARROLLADOR INTEGRADO -->
-      <div style="margin-top: 20px; padding: 15px; border-top: 1px dashed #475569; text-align: left;">
-        <p style="font-size: 12px; color: #f59e0b; margin: 0 0 8px 0; font-weight: bold;">🛠️ PANEL DE DESARROLLADOR (ENTRADA GRATIS):</p>
-        <div style="display: flex; gap: 8px;">
-          <input type="text" id="dev_usuario" placeholder="Usuario Dev" style="margin-top:0; padding:8px; font-size:13px;" />
-          <input type="password" id="dev_password" placeholder="Contraseña Dev" style="margin-top:0; padding:8px; font-size:13px;" />
-        </div>
-        <button onclick="verificarAccesoGratuitoDesarrollador()" style="background: #d97706; padding: 8px; font-size: 13px; margin-top: 8px; width: auto; font-weight: bold;">Procesar gratis como Desarrollador</button>
-      </div>
-      
-      <button onclick="corregirFormulario()" style="background:transparent; border:1px solid #64748b; color: #cbd5e1; padding: 10px; margin-top: 15px;">← MODIFICAR O CORREGIR DATOS</button>
+    <button onclick="corregirFormulario()" style="background:transparent; border:1px solid #64748b; color: #cbd5e1; padding: 10px; margin-top: 15px;">← MODIFICAR O CORREGIR DATOS</button>
+  </div>
+
+  <!-- PANTALLA FINAL: PROCESAMIENTO Y DESCARGA -->
+  <div id="ventanaCortinaLimpia" class="card-limpia paso-oculto" style="text-align: center; padding: 40px 20px;">
+    <div id="bloqueTextoVisualLimpio">
+      <!-- SPINNER DE CARGA -->
+      <div style="border: 4px solid #3b82f6; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 15px auto;"></div>
+      <p style="color: #cbd5e1;">Procesando documentos y volcando información...</p>
     </div>
+@@ -143,6 +163,21 @@
+<script>
+  let datosTramitePendiente = null;
 
-    <!-- PANTALLA FINAL: PROCESAMIENTO Y DESCARGA -->
-    <div id="ventanaCortinaLimpia" class="card-limpia paso-oculto" style="text-align: center; padding: 40px 20px;">
-      <div id="bloqueTextoVisualLimpio">
-        <div style="border: 4px solid #3b82f6; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 15px auto;"></div>
-        <p style="color: #cbd5e1;">Procesando documentos y volcando información...</p>
-      </div>
-      
-      <div id="contenedorBotonDescarga" class="paso-oculto" style="margin-top: 25px;">
-        <button id="btnDescargarPdfReal" style="background: #059669; font-size: 18px; padding: 16px; font-weight: bold;">📥 DESCARGAR SU DOCUMENTO OFICIAL (PDF)</button>
-        <button onclick="window.location.href='/'" style="background: transparent; border: 1px solid #475569; color: #94a3b8; margin-top: 15px;">← REALIZAR OTRO TRÁMITE</button>
-      </div>
-    </div>
+  function forzarMayusculas(elemento) {
+    elemento.style.borderColor = "#475569";
+    elemento.value = elemento.value.toUpperCase();
+  }
 
-  </div><!-- Fin de #main-container -->
-
-  <script>
-    let datosTramitePendiente = null;
-
-    function forzarMayusculas(elemento) {
-      elemento.style.borderColor = "#475569";
-      elemento.value = elemento.value.toUpperCase();
+  function formatearFechaMecanica(elemento) {
+    elemento.style.borderColor = "#475569";
+    let v = elemento.value.replace(/\D/g, '');
+    if (v.length > 2 && v.length <= 4) {
+      elemento.value = v.substring(0, 2) + '/' + v.substring(2);
+    } else if (v.length > 4) {
+      elemento.value = v.substring(0, 2) + '/' + v.substring(2, 4) + '/' + v.substring(4, 8);
     }
+  }
 
-    function formatearFechaMecanica(elemento) {
-      elemento.style.borderColor = "#475569";
-      let v = elemento.value.replace(/\D/g, '');
-      if (v.length > 2 && v.length <= 4) {
-        elemento.value = v.substring(0, 2) + '/' + v.substring(2);
-      } else if (v.length > 4) {
-        elemento.value = v.substring(0, 2) + '/' + v.substring(2, 4) + '/' + v.substring(4, 8);
-      }
+  function abrirTramiteSeleccionado() {
+    const tramite = document.getElementById("selectorTramite").value;
+    document.getElementById("menuOpciones").style.display = "none";
+@@ -171,27 +206,70 @@
+
+  function procesarFormularioI485() {
+    if (!document.getElementById("chkTerminosLegalesAjuste").checked) {
+      alert("Debe aceptar el aviso legal.");
+      alert("Debe marcar la casilla de confirmación de veracidad de datos.");
+      return;
     }
+    datosTramitePendiente = {
+      tramite_tipo: "ajuste_cubano_i485",
+      nombre: document.getElementById("i485_nombre").value.trim(),
+      apellidos: document.getElementById("i485_apellidos").value.trim(),
+      nacimiento: document.getElementById("i485_fecha_nacimiento").value,
+      anumber: document.getElementById("i485_anumber").value.trim(),
+      empleo: document.getElementById("i485_empleo").value.trim()
 
-    function abrirTramiteSeleccionado() {
-      const tramite = document.getElementById("selectorTramite").value;
-      document.getElementById("menuOpciones").style.display = "none";
-      if (tramite === "ajuste_cubano") {
-        document.getElementById("panelFormularioAjuste").style.display = "block";
-      } else {
-        document.getElementById("panelFormularioPasaporte").style.display = "block";
-      }
-    }
+    const inputsObligatorios = {
+      "i485_apellidos": document.getElementById("i485_apellidos"),
+      "i485_nombre": document.getElementById("i485_nombre"),
+      "i485_fecha_nacimiento": document.getElementById("i485_fecha_nacimiento"),
+      "i485_ciudad_nacimiento": document.getElementById("i485_ciudad_nacimiento"),
+      "i485_pasaporte_num": document.getElementById("i485_pasaporte_num"),
+      "i485_pasaporte_exp": document.getElementById("i485_pasaporte_exp"),
+      "i485_fecha_llegada": document.getElementById("i485_fecha_llegada"),
+      "i485_puerto_entrada": document.getElementById("i485_puerto_entrada"),
+      "i485_estatus_entrada": document.getElementById("i485_estatus_entrada"),
+      "i485_empleo_usa": document.getElementById("i485_empleo_usa"),
+      "i485_empleo_cuba": document.getElementById("i485_empleo_cuba")
+    };
+    if (!datosTramitePendiente.nombre || !datosTramitePendiente.apellidos || !datosTramitePendiente.nacimiento) {
+      alert("Campos obligatorios incompletos.");
 
-    function regresarAlMenu() {
-      document.getElementById("panelFormularioAjuste").style.display = "none";
-      document.getElementById("panelFormularioPasaporte").style.display = "none";
-      document.getElementById("ventanaConfirmacionDatos").style.display = "none";
-      document.getElementById("menuOpciones").style.display = "block";
-    }
-
-    function corregirFormulario() {
-      document.getElementById("ventanaConfirmacionDatos").style.display = "none";
-      if (datosTramitePendiente && datosTramitePendiente.tramite_tipo === "ajuste_cubano_i485") {
-        document.getElementById("panelFormularioAjuste").style.display = "block";
-      } else {
-        document.getElementById("panelFormularioPasaporte").style.display = "block";
-      }
-    }
-
-    function procesarFormularioI485() {
-      if (!document.getElementById("chkTerminosLegalesAjuste").checked) {
-        alert("Debe marcar la casilla de confirmación de veracidad de datos.");
+    for (let id in inputsObligatorios) {
+      if (!inputsObligatorios[id].value.trim()) {
+        inputsObligatorios[id].style.borderColor = "#ef4444";
+        inputsObligatorios[id].focus();
+        alert("Falta información: Por favor, ingrese el campo solicitado marcado en rojo.");
         return;
       }
+    }
 
-      const inputsObligatorios = {
-        "i485_apellidos": document.getElementById("i485_apellidos"),
-        "i485_nombre": document.getElementById("i485_nombre"),
-        "i485_fecha_nacimiento": document.getElementById("i485_fecha_nacimiento"),
-        "i485_ciudad_nacimiento": document.getElementById("i485_ciudad_nacimiento"),
-        "i485_pasaporte_num": document.getElementById("i485_pasaporte_num"),
-        "i485_pasaporte_exp": document.getElementById("i485_pasaporte_exp"),
-        "i485_fecha_llegada": document.getElementById("i485_fecha_llegada"),
-        "i485_puerto_entrada": document.getElementById("i485_puerto_entrada"),
-        "i485_estatus_entrada": document.getElementById("i485_estatus_entrada"),
-        "i485_empleo_usa": document.getElementById("i485_empleo_usa"),
-        "i485_empleo_cuba": document.getElementById("i485_empleo_cuba")
-      };
+    const campoANumber = document.getElementById("i485_anumber");
+    let aNumberLimpio = campoANumber.value.replace(/\D/g, '');
+    if (campoANumber.value.trim() !== "" && aNumberLimpio.length !== 9) {
+      campoANumber.style.borderColor = "#ef4444";
+      campoANumber.focus();
+      alert(`Error en el A-Number: El número de extranjero debe tener exactamente 9 dígitos numéricos. Usted ingresó ${aNumberLimpio.length} dígitos.`);
+      return;
+    }
 
-      for (let id in inputsObligatorios) {
-        if (!inputsObligatorios[id].value.trim()) {
-          inputsObligatorios[id].style.borderColor = "#ef4444";
-          inputsObligatorios[id].focus();
-          alert("Falta información: Por favor, ingrese el campo solicitado marcado en rojo.");
-          return;
-        }
-      }
+    datosTramitePendiente = {
+      tramite_tipo: "ajuste_cubano_i485",
+      nombre: inputsObligatorios["i485_nombre"].value.trim(),
+      apellidos: inputsObligatorios["i485_apellidos"].value.trim(),
+      segundo_nombre: document.getElementById("i485_segundo_nombre").value.trim(),
+      nacimiento: inputsObligatorios["i485_fecha_nacimiento"].value,
+      sexo: document.getElementById("i485_sexo").value,
+      ciudad_nacimiento: inputsObligatorios["i485_ciudad_nacimiento"].value.trim(),
+      anumber: aNumberLimpio,
+      uscis_online: document.getElementById("i485_uscis_online").value.trim(),
+      pasaporte_num: inputsObligatorios["i485_pasaporte_num"].value.trim(),
+      pasaporte_exp: inputsObligatorios["i485_pasaporte_exp"].value,
+      fecha_llegada: inputsObligatorios["i485_fecha_llegada"].value,
+      puerto_entrada: inputsObligatorios["i485_puerto_entrada"].value.trim(),
+      estatus_entrada: inputsObligatorios["i485_estatus_entrada"].value.trim(),
+      empleo_usa: inputsObligatorios["i485_empleo_usa"].value.trim(),
+      empleo: inputsObligatorios["i485_empleo_cuba"].value.trim(),
+      arrestado: document.getElementById("i485_pregunta_arresto").value,
+      trabajo_ilegal: document.getElementById("i485_pregunta_trabajo_ilegal").value
+    };
 
-      const campoANumber = document.getElementById("i485_anumber");
-      let aNumberLimpio = campoANumber.value.replace(/\D/g, '');
-      if (campoANumber.value.trim() !== "" && aNumberLimpio.length !== 9) {
-        campoANumber.style.borderColor = "#ef4444";
-        campoANumber.focus();
-        alert(`Error en el A-Number: El número de extranjero debe tener exactamente 9 dígitos numéricos. Usted ingresó ${aNumberLimpio.length} dígitos.`);
-        return;
-      }
-
-      datosTramitePendiente = {
-        tramite_tipo: "ajuste_cubano_i485",
-        nombre: inputsObligatorios["i485_nombre"].value.trim(),
-        apellidos: inputsObligatorios["i485_apellidos"].value.trim(),
-        segundo_nombre: document.getElementById("i485_segundo_nombre").value.trim(),
-        nacimiento: inputsObligatorios["i485_fecha_nacimiento"].value,
-        sexo: document.getElementById("i485_sexo").value,
-        ciudad_nacimiento: inputsObligatorios["i485_ciudad_nacimiento"].value.trim(),
-        anumber: aNumberLimpio,
-        uscis_online: document.getElementById("i485_uscis_online").value.trim(),
-        pasaporte_num: inputsObligatorios["i485_pasaporte_num"].value.trim(),
-        pasaporte_exp: inputsObligatorios["i485_pasaporte_exp"].value,
-        fecha_llegada: inputsObligatorios["i485_fecha_llegada"].value,
-        puerto_entrada: inputsObligatorios["i485_puerto_entrada"].value.trim(),
-        estatus_entrada: inputsObligatorios["i485_estatus_entrada"].value.trim(),
-        empleo_usa: inputsObligatorios["i485_empleo_usa"].value.trim(),
-        empleo: inputsObligatorios["i485_empleo_cuba"].value.trim(),
-        arrestado: document.getElementById("i485_pregunta_arresto").value,
-        trabajo_ilegal: document.getElementById("i485_pregunta_trabajo_ilegal").value
-      };
-
-      let resumenHTML = `
+    let resumenHTML = `
+      <p><strong>Trámite:</strong> Ley de Ajuste Cubano (I-485)</p>
+      <p><strong>Nombre/s:</strong> ${datosTramitePendiente.nombre.toUpperCase()}</p>
+      <p><strong>Apellido/s:</strong> ${datosTramitePendiente.apellidos.toUpperCase()}</p>
+      <p><strong>Fecha Nacimiento:</strong> ${datosTramitePendiente.nacimiento}</p>
       <p style="margin:4px 0;"><strong>Trámite:</strong> Residencia por Ley de Ajuste Cubano (I-485)</p>
       <p style="margin:4px 0;"><strong>Solicitante:</strong> ${datosTramitePendiente.apellidos}, ${datosTramitePendiente.nombre}</p>
       <p style="margin:4px 0;"><strong>Fecha de Nacimiento:</strong> ${datosTramitePendiente.nacimiento}</p>
       <p style="margin:4px 0; color:#60a5fa;"><strong>Descripción Laboral (Traducción IA):</strong> ${datosTramitePendiente.empleo}</p>
     `;
+
     document.getElementById("resumenDatosCliente").innerHTML = resumenHTML;
     document.getElementById("panelFormularioAjuste").style.display = "none";
     document.getElementById("ventanaConfirmacionDatos").style.display = "block";
-    document.getElementById("btnPagarConfirmado").onclick = ejecutarPasarelaPago;
-}
+@@ -200,125 +278,140 @@
 
-function procesarPasaporteCubano() {
+  function procesarPasaporteCubano() {
     if (!document.getElementById("chkTerminosLegalesPasaporte").checked) {
-        alert("Debe marcar la casilla para confirmar sus datos.");
-        return;
+      alert("Debe aceptar el aviso legal.");
+      alert("Debe marcar la casilla para confirmar sus datos.");
+      return;
     }
+
     const inputsPasaporte = {
-        "pcu_nombre": document.getElementById("pcu_nombre"),
-        "pcu_apellidos": document.getElementById("pcu_apellidos"),
-        "pcu_numero": document.getElementById("pcu_numero"),
-        "pcu_provincia": document.getElementById("pcu_provincia"),
-        "pcu_fecha_salida": document.getElementById("pcu_fecha_salida")
+      "pcu_nombre": document.getElementById("pcu_nombre"),
+      "pcu_apellidos": document.getElementById("pcu_apellidos"),
+      "pcu_numero": document.getElementById("pcu_numero"),
+      "pcu_provincia": document.getElementById("pcu_provincia"),
+      "pcu_fecha_salida": document.getElementById("pcu_fecha_salida")
     };
+
     for (let id in inputsPasaporte) {
-        if (!inputsPasaporte[id].value.trim()) {
-            inputsPasaporte[id].style.borderColor = "#ef4444";
-            inputsPasaporte[id].focus();
-            alert("Falta información obligatoria para su Planilla Consular.");
-            return;
-        }
+      if (!inputsPasaporte[id].value.trim()) {
+        inputsPasaporte[id].style.borderColor = "#ef4444";
+        inputsPasaporte[id].focus();
+        alert("Falta información obligatoria para su Planilla Consular.");
+        return;
+      }
     }
+
     datosTramitePendiente = {
-        tramite_tipo: "pasaporte_cubano_consular",
-        tipo: document.getElementById("pcu_tipo").value,
-        nombre: inputsPasaporte["pcu_nombre"].value.trim(),
-        apellidos: inputsPasaporte["pcu_apellidos"].value.trim(),
-        pasaporte_num: inputsPasaporte["pcu_numero"].value.trim(),
-        provincia: inputsPasaporte["pcu_provincia"].value.trim(),
-        salida_cuba: inputsPasaporte["pcu_fecha_salida"].value
+      tramite_tipo: "pasaporte_cubano_consular",
+      tipo: document.getElementById("pcu_tipo").value,
+      nombre: document.getElementById("pcu_nombre").value.trim(),
+      apellidos: document.getElementById("pcu_apellidos").value.trim(),
+      pasaporte_num: document.getElementById("pcu_numero").value.trim(),
+      provincia: document.getElementById("pcu_provincia").value.trim(),
+      salida_cuba: document.getElementById("pcu_fecha_salida").value
+      nombre: inputsPasaporte["pcu_nombre"].value.trim(),
+      apellidos: inputsPasaporte["pcu_apellidos"].value.trim(),
+      pasaporte_num: inputsPasaporte["pcu_numero"].value.trim(),
+      provincia: inputsPasaporte["pcu_provincia"].value.trim(),
+      salida_cuba: inputsPasaporte["pcu_fecha_salida"].value
     };
+    if (!datosTramitePendiente.nombre || !datosTramitePendiente.apellidos) {
+      alert("Nombre y apellidos son obligatorios.");
+      return;
+    }
+
     let resumenHTML = `
+      <p><strong>Trámite:</strong> Pasaporte Cubano - ${datosTramitePendiente.tipo.toUpperCase()}</p>
+      <p><strong>Nombre/s:</strong> ${datosTramitePendiente.nombre.toUpperCase()}</p>
+      <p><strong>Apellido/s:</strong> ${datosTramitePendiente.apellidos.toUpperCase()}</p>
       <p style="margin:4px 0;"><strong>Trámite Consular:</strong> Pasaporte de Cuba - ${datosTramitePendiente.tipo.toUpperCase()}</p>
       <p style="margin:4px 0;"><strong>Nombres y Apellidos:</strong> ${datosTramitePendiente.nombre} ${datosTramitePendiente.apellidos}</p>
     `;
@@ -348,17 +371,34 @@ function procesarPasaporteCubano() {
     document.getElementById("panelFormularioPasaporte").style.display = "none";
     document.getElementById("ventanaConfirmacionDatos").style.display = "block";
     document.getElementById("btnPagarConfirmado").onclick = ejecutarPasarelaPago;
+  }
 }
 
+  function ejecutarPasarelaPago() {
 function ejecutarPasarelaPago() {
     const btn = document.getElementById("btnPagarConfirmado");
     btn.disabled = true;
+    btn.innerText = "Conectando con pasarela...";
     btn.innerText = "Conectando con pasarela Stripe...";
+    
     fetch('/api/crear_sesion_pago', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ tramite_tipo: datosTramitePendiente.tramite_tipo })
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ tramite_tipo: datosTramitePendiente.tramite_tipo })
-    }).then(res => res.json()).then(data => {
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.url) {
+        localStorage.setItem("datos_tramite_pagado", JSON.stringify(datosTramitePendiente));
+        window.location.href = data.url;
+      } else {
+        alert("Error: " + (data.error || "Intente más tarde."));
+        btn.disabled = false;
+        btn.innerText = "✔ TODO ESTÁ CORRECTO, IR AL PAGO";
+      }
         if (data.url) {
             localStorage.setItem("datos_tramite_pagado", JSON.stringify(datosTramitePendiente));
             window.location.href = data.url;
@@ -367,63 +407,88 @@ function ejecutarPasarelaPago() {
             btn.disabled = false;
             btn.innerText = "✔ TODO ESTÁ CORRECTO, IR AL PAGO";
         }
-    }).catch(err => {
+    })
+    .catch(err => {
+      alert("Error de red al conectar con Stripe.");
+      btn.disabled = false;
+      btn.innerText = "✔ TODO ESTÁ CORRECTO, IR AL PAGO";
         alert("Error crítico de comunicación con la pasarela.");
         btn.disabled = false;
         btn.innerText = "✔ TODO ESTÁ CORRECTO, IR AL PAGO";
     });
+  }
 }
 
+  // FUNCIÓN DE VALIDACIÓN PARA EL ACCESO GRATUITO DE DESARROLLADOR
+  function verificarAccesoGratuitoDesarrollador() {
 function verificarAccesoGratuitoDesarrollador() {
     const u = document.getElementById("dev_usuario").value.trim();
     const p = document.getElementById("dev_password").value.trim();
+
     if (!u || !p) {
+      alert("Por favor ingrese usuario y contraseña de desarrollador.");
+      return;
         alert("Ingrese usuario y contraseña de desarrollador.");
         return;
     }
+
     fetch('/api/dev_bypass', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ usuario: u, password: p, tramite_tipo: datosTramitePendiente?.tramite_tipo })
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ usuario: u, password: p })
-    }).then(res => res.json()).then(data => {
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.acceso) {
+        ejecutarProcesamientoAsistente(datosTramitePendiente);
+      } else {
+        alert("Acceso denegado: " + (data.error || "Credenciales inválidas."));
+      }
         if (data.acceso) {
             ejecutarProcesamientoAsistente(datosTramitePendiente);
         } else {
             alert("Acceso denegado: " + data.error);
         }
-    }).catch(err => {
+    })
+    .catch(err => {
+      alert("Error al validar credenciales de desarrollo.");
         alert("Fallo de red en el módulo Dev.");
     });
+  }
 }
 
+  function ejecutarProcesamientoAsistente(datosFinales) {
 function ejecutarProcesamientoAsistente(datosFinales) {
     document.getElementById("menuOpciones").style.display = "none";
     document.getElementById("panelFormularioAjuste").style.display = "none";
     document.getElementById("panelFormularioPasaporte").style.display = "none";
     document.getElementById("ventanaConfirmacionDatos").style.display = "none";
     document.getElementById("ventanaCortinaLimpia").style.display = "block";
+
     fetch('/api/asistente', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(datosFinales)
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(datosFinales)
-    }).then(res => res.json()).then(data => {
-        localStorage.removeItem("datos_tramite_pagado");
-        document.getElementById("bloqueTextoVisualLimpio").innerHTML = `
-          <div style="text-align:left; font-size:14px; color:#cbd5e1; background:#0f172a; padding:15px; border-radius:10px; border:1px solid #334155;">${data.respuesta}</div>
-        `;
-        document.getElementById("contenedorBotonDescarga").style.display = "block";
-        document.getElementById("btnDescargarPdfReal").onclick = () => {
-            window.location.href = data.archivo_url;
-        };
-    }).catch(err => {
-        document.getElementById("bloqueTextoVisualLimpio").innerHTML = "Fallo crítico procesando el documento gubernamental.";
-    });
-}
+    })
     .then(res => res.json())
     .then(data => {
+      localStorage.removeItem("datos_tramite_pagado");
+      document.getElementById("bloqueTextoVisualLimpio").innerHTML = `
+        <div style="text-align:left; font-size:14px; color:#cbd5e1; background:#0f172a; padding:15px; border-radius:10px; border:1px solid #334155;">${data.respuesta}</div>
+      `;
+      document.getElementById("contenedorBotonDescarga").style.display = "block";
+      document.getElementById("btnDescargarPdfReal").onclick = () => {
+        window.location.href = data.archivo_url;
+      };
         localStorage.removeItem("datos_tramite_pagado");
         
-        // CORREGIDO: Se envolvieron las etiquetas HTML usando comillas invertidas ``
+        // CORREGIDO: Se envolvieron las etiquetas HTML con comillas invertidas ``
         document.getElementById("bloqueTextoVisualLimpio").innerHTML = `
             <div style="text-align:left; font-size:14px; color:#cbd5e1; background:#0f172a; padding:15px; border-radius:10px; border:1px solid #334155;">${data.respuesta}</div>
         `;
@@ -434,18 +499,26 @@ function ejecutarProcesamientoAsistente(datosFinales) {
         };
     })
     .catch(err => {
-        document.getElementById("bloqueTextoVisualLimpio").innerHTML = "Fallo crítico procesando el documento gubernamental.";
+      document.getElementById("bloqueTextoVisualLimpio").innerHTML = "<p style='color:#f87171;'>Error al procesar el documento en el servidor.</p>";
+        document.getElementById("bloqueTextoVisualLimpio").innerHTML = "<p style='color:#f87171;'>Fallo crítico procesando el documento gubernamental.</p>";
     });
+  }
 }
 
+  window.addEventListener("DOMContentLoaded", () => {
 window.addEventListener("DOMContentLoaded", () => {
     const rutaActual = window.location.pathname;
     const datosGuardados = localStorage.getItem("datos_tramite_pagado");
-    
     if ((rutaActual.includes("ajuste_cubano_i485") || rutaActual.includes("pasaporte_cubano_consular")) && datosGuardados) {
+      const datosFinales = JSON.parse(datosGuardados);
+      datosTramitePendiente = datosFinales;
+      ejecutarProcesamientoAsistente(datosFinales);
         const datosFinales = JSON.parse(datosGuardados);
         datosTramitePendiente = datosFinales;
         ejecutarProcesamientoAsistente(datosFinales);
     }
+  });
+</script>
+</body>
+</html>
 });
-
