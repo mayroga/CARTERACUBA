@@ -208,4 +208,5 @@ def descargar_archivo(filename):
     return send_from_directory('static/descargas', filename, as_attachment=True)
 
 if __name__ == '__main__':
+    app.run(debug=True, port=5000)
 
