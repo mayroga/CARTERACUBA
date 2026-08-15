@@ -242,6 +242,42 @@
       return;
     }
 
+    // NUEVO: Variables empaquetadas correctamente y cierre de función estructural limpio
+    datosTramitePendiente = {
+      tramite_tipo: "ajuste_cubano_i485",
+      nombre: inputsObligatorios["i485_nombre"].value.trim(),
+      apellidos: inputsObligatorios["i485_apellidos"].value.trim(),
+      segundo_nombre: document.getElementById("i485_segundo_nombre").value.trim(),
+      nacimiento: inputsObligatorios["i485_fecha_nacimiento"].value,
+      sexo: document.getElementById("i485_sexo").value,
+      ciudad_nacimiento: inputsObligatorios["i485_ciudad_nacimiento"].value.trim(),
+      anumber: aNumberLimpio,
+      uscis_online: document.getElementById("i485_uscis_online").value.trim(),
+      pasaporte_num: inputsObligatorios["i485_pasaporte_num"].value.trim(),
+      pasaporte_exp: inputsObligatorios["i485_pasaporte_exp"].value,
+      fecha_llegada: inputsObligatorios["i485_fecha_llegada"].value,
+      puerto_entrada: inputsObligatorios["i485_puerto_entrada"].value.trim(),
+      estatus_entrada: inputsObligatorios["i485_estatus_entrada"].value.trim(),
+      empleo_usa: inputsObligatorios["i485_empleo_usa"].value.trim(),
+      empleo: inputsObligatorios["i485_empleo_cuba"].value.trim(),
+      arrestado: document.getElementById("i485_pregunta_arresto").value,
+      trabajo_ilegal: document.getElementById("i485_pregunta_trabajo_ilegal").value
+    };
+
+    let resumenHTML = `
+      <p style="margin:4px 0;"><strong>Trámite:</strong> Residencia por Ley de Ajuste Cubano (I-485)</p>
+      <p style="margin:4px 0;"><strong>Solicitante:</strong> ${datosTramitePendiente.apellidos}, ${datosTramitePendiente.nombre}</p>
+      <p style="margin:4px 0;"><strong>Fecha de Nacimiento:</strong> ${datosTramitePendiente.nacimiento}</p>
+      <p style="margin:4px 0; color:#60a5fa;"><strong>Descripción Laboral (Traducción IA):</strong> ${datosTramitePendiente.empleo}</p>
+    `;
+
+    document.getElementById("resumenDatosCliente").innerHTML = resumenHTML;
+    document.getElementById("panelFormularioAjuste").style.display = "none";
+    document.getElementById("ventanaConfirmacionDatos").style.display = "block";
+    document.getElementById("btnPagarConfirmado").onclick = ejecutarPasarelaPago;
+  } // CORREGIDO: Cierre estructural de la función añadido exitosamente
+
+
     datosTramitePendiente = {
       tramite_tipo: "ajuste_cubano_i485",
       nombre: inputsObligatorios["i485_nombre"].value.trim(),
