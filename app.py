@@ -70,22 +70,21 @@ def traducir_texto_con_respaldo(texto_espanol):
     # Retorno de emergencia si ambas APIs fallan
     return texto_espanol
 
-# POR ESTO:
+# ================= INSPECTOR TEMPORAL PARA PASAPORTE =================
 @app.route('/')
 def home():
     from pypdf import PdfReader
     try:
-        # Esto leerá tu archivo real en Render
-        lector = PdfReader("static/plantillas/i485_base.pdf")
+        # Ahora leemos la plantilla del pasaporte cubano
+        lector = PdfReader("static/plantillas/pasaporte_cuba_base.pdf")
         campos = lector.get_fields()
-        # Si encuentra casillas interactivas, las listará en la pantalla
         if campos:
             lista_campos = list(campos.keys())
-            return f"<h1>Campos encontrados en tu PDF:</h1><p>{'<br>'.join(lista_campos)}</p>"
+            return f"<h1>Campos encontrados en el Pasaporte de Cuba:</h1><p>{'<br>'.join(lista_campos)}</p>"
         else:
-            return "<h1>Error: Tu PDF no tiene ningun campo interactivo. Esta plano.</h1>"
+            return "<h1>Error: El PDF del pasaporte no tiene ningún campo interactivo. Está plano.</h1>"
     except Exception as e:
-        return f"<h1>Error al leer el archivo:</h1><p>{str(e)}</p>"
+        return f"<h1>Error al leer el archivo del pasaporte:</h1><p>{str(e)}</p>"
 
 # ================= LOGIN DE DESARROLLADOR =================
 @app.route('/login_dev', methods=['POST'])
