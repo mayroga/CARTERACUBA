@@ -298,7 +298,8 @@
         arrestado: document.getElementById("i485_pregunta_arresto").value,
         trabajo_ilegal: document.getElementById("i485_pregunta_trabajo_ilegal").value
       };
-    let resumenHTML = `
+
+      let resumenHTML = `
       <p style="margin:4px 0;"><strong>Trámite:</strong> Residencia por Ley de Ajuste Cubano (I-485)</p>
       <p style="margin:4px 0;"><strong>Solicitante:</strong> ${datosTramitePendiente.apellidos}, ${datosTramitePendiente.nombre}</p>
       <p style="margin:4px 0;"><strong>Fecha de Nacimiento:</strong> ${datosTramitePendiente.nacimiento}</p>
@@ -418,14 +419,33 @@ function ejecutarProcesamientoAsistente(datosFinales) {
         document.getElementById("bloqueTextoVisualLimpio").innerHTML = "Fallo crítico procesando el documento gubernamental.";
     });
 }
+    .then(res => res.json())
+    .then(data => {
+        localStorage.removeItem("datos_tramite_pagado");
+        
+        // CORREGIDO: Se envolvieron las etiquetas HTML usando comillas invertidas ``
+        document.getElementById("bloqueTextoVisualLimpio").innerHTML = `
+            <div style="text-align:left; font-size:14px; color:#cbd5e1; background:#0f172a; padding:15px; border-radius:10px; border:1px solid #334155;">${data.respuesta}</div>
+        `;
+        
+        document.getElementById("contenedorBotonDescarga").style.display = "block";
+        document.getElementById("btnDescargarPdfReal").onclick = () => {
+            window.location.href = data.archivo_url;
+        };
+    })
+    .catch(err => {
+        document.getElementById("bloqueTextoVisualLimpio").innerHTML = "Fallo crítico procesando el documento gubernamental.";
+    });
+}
 
 window.addEventListener("DOMContentLoaded", () => {
     const rutaActual = window.location.pathname;
     const datosGuardados = localStorage.getItem("datos_tramite_pagado");
+    
     if ((rutaActual.includes("ajuste_cubano_i485") || rutaActual.includes("pasaporte_cubano_consular")) && datosGuardados) {
         const datosFinales = JSON.parse(datosGuardados);
         datosTramitePendiente = datosFinales;
         ejecutarProcesamientoAsistente(datosFinales);
     }
 });
-        
+
