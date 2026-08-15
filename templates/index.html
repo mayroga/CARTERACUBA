@@ -127,54 +127,54 @@
 let datosTramitePendiente = null;
 
 function abrirTramiteSeleccionado() {
-  const tramite = document.getElementById("selectorTramite").value;
-  document.getElementById("menuOpciones").style.display = "none";
-  if (tramite === "ajuste_cubano") {
-    document.getElementById("panelFormularioAjuste").style.display = "block";
-  } else {
-    document.getElementById("panelFormularioPasaporte").style.display = "block";
-  }
+    const tramite = document.getElementById("selectorTramite").value;
+    document.getElementById("menuOpciones").style.display = "none";
+    if (tramite === "ajuste_cubano") {
+        document.getElementById("panelFormularioAjuste").style.display = "block";
+    } else {
+        document.getElementById("panelFormularioPasaporte").style.display = "block";
+    }
 }
 
 function regresarAlMenu() {
-  document.getElementById("panelFormularioAjuste").style.display = "none";
-  document.getElementById("panelFormularioPasaporte").style.display = "none";
-  document.getElementById("ventanaConfirmacionDatos").style.display = "none";
-  document.getElementById("menuOpciones").style.display = "block";
+    document.getElementById("panelFormularioAjuste").style.display = "none";
+    document.getElementById("panelFormularioPasaporte").style.display = "none";
+    document.getElementById("ventanaConfirmacionDatos").style.display = "none";
+    document.getElementById("menuOpciones").style.display = "block";
 }
 
 function corregirFormulario() {
-  document.getElementById("ventanaConfirmacionDatos").style.display = "none";
-  if (datosTramitePendiente.tramite_tipo === "ajuste_cubano_i485") {
-    document.getElementById("panelFormularioAjuste").style.display = "block";
-  } else {
-    document.getElementById("panelFormularioPasaporte").style.display = "block";
-  }
+    document.getElementById("ventanaConfirmacionDatos").style.display = "none";
+    if (datosTramitePendiente.tramite_tipo === "ajuste_cubano_i485") {
+        document.getElementById("panelFormularioAjuste").style.display = "block";
+    } else {
+        document.getElementById("panelFormularioPasaporte").style.display = "block";
+    }
 }
 
 function procesarFormularioI485() {
-  if (!document.getElementById("chkTerminosLegalesAjuste").checked) {
-    alert("Debe aceptar el aviso legal.");
-    return;
-  }
-  datosTramitePendiente = {
-    tramite_tipo: "ajuste_cubano_i485",
-    nombre: document.getElementById("i485_nombre").value.trim(),
-    apellidos: document.getElementById("i485_apellidos").value.trim(),
-    nacimiento: document.getElementById("i485_fecha_nacimiento").value,
-    anumber: document.getElementById("i485_anumber").value.trim(),
-    empleo: document.getElementById("i485_empleo").value.trim()
-  };
-  if (!datosTramitePendiente.nombre || !datosTramitePendiente.apellidos || !datosTramitePendiente.nacimiento) {
-    alert("Campos obligatorios incompletos.");
-    return;
-  }
-  let resumenHTML = `
-    <p><strong>Trámite:</strong> I-485</p>
-    <p><strong>Nombre/s:</strong> ${datosTramitePendiente.nombre.toUpperCase()}</p>
-    <p><strong>Apellido/s:</strong> ${datosTramitePendiente.apellidos.toUpperCase()}</p>
-    <p><strong>Fecha Nacimiento:</strong> ${datosTramitePendiente.nacimiento}</p>
-  `;
+    if (!document.getElementById("chkTerminosLegalesAjuste").checked) {
+        alert("Debe aceptar el aviso legal.");
+        return;
+    }
+    datosTramitePendiente = {
+        tramite_tipo: "ajuste_cubano_i485",
+        nombre: document.getElementById("i485_nombre").value.trim(),
+        apellidos: document.getElementById("i485_apellidos").value.trim(),
+        nacimiento: document.getElementById("i485_fecha_nacimiento").value,
+        anumber: document.getElementById("i485_anumber").value.trim(),
+        empleo: document.getElementById("i485_empleo").value.trim()
+    };
+    if (!datosTramitePendiente.nombre || !datosTramitePendiente.apellidos || !datosTramitePendiente.nacimiento) {
+        alert("Campos obligatorios incompletos.");
+        return;
+    }
+    let resumenHTML = `
+        <p><strong>Trámite:</strong> I-485</p>
+        <p><strong>Nombre/s:</strong> ${datosTramitePendiente.nombre.toUpperCase()}</p>
+        <p><strong>Apellido/s:</strong> ${datosTramitePendiente.apellidos.toUpperCase()}</p>
+        <p><strong>Fecha Nacimiento:</strong> ${datosTramitePendiente.nacimiento}</p>
+    `;
     document.getElementById("resumenDatosCliente").innerHTML = resumenHTML;
     document.getElementById("panelFormularioAjuste").style.display = "none";
     document.getElementById("ventanaConfirmacionDatos").style.display = "block";
@@ -186,7 +186,6 @@ function procesarPasaporteCubano() {
         alert("Debe aceptar el aviso legal.");
         return;
     }
-    
     datosTramitePendiente = {
         tramite_tipo: "pasaporte_cubano_consular",
         tipo: document.getElementById("pcu_tipo").value,
@@ -196,19 +195,15 @@ function procesarPasaporteCubano() {
         provincia: document.getElementById("pcu_provincia").value.trim(),
         salida_cuba: document.getElementById("pcu_fecha_salida").value
     };
-    
     if (!datosTramitePendiente.nombre || !datosTramitePendiente.apellidos) {
         alert("Nombre y apellidos son obligatorios.");
         return;
     }
-    
-    // CORREGIDO: Se envolvieron las etiquetas HTML usando comillas invertidas ``
     let resumenHTML = `
-        <p><strong>Trámite:</strong> Pasaporte Cubano - ${datosTramitePendiente.tipo.toUpperCase()}</p> 
-        <p><strong>Nombre/s:</strong> ${datosTramitePendiente.nombre.toUpperCase()}</p> 
+        <p><strong>Trámite:</strong> Pasaporte Cubano - ${datosTramitePendiente.tipo.toUpperCase()}</p>
+        <p><strong>Nombre/s:</strong> ${datosTramitePendiente.nombre.toUpperCase()}</p>
         <p><strong>Apellido/s:</strong> ${datosTramitePendiente.apellidos.toUpperCase()}</p>
     `;
-    
     document.getElementById("resumenDatosCliente").innerHTML = resumenHTML;
     document.getElementById("panelFormularioPasaporte").style.display = "none";
     document.getElementById("ventanaConfirmacionDatos").style.display = "block";
@@ -219,7 +214,6 @@ function ejecutarPasarelaPago() {
     const btn = document.getElementById("btnPagarConfirmado");
     btn.disabled = true;
     btn.innerText = "Procesando...";
-    
     fetch('/api/crear_sesion_pago', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -246,18 +240,14 @@ function ejecutarPasarelaPago() {
 window.addEventListener("DOMContentLoaded", () => {
     const rutaActual = window.location.pathname;
     const datosGuardados = localStorage.getItem("datos_tramite_pagado");
-    
     if ((rutaActual.includes("ajuste_cubano_i485") || rutaActual.includes("pasaporte_cubano_consular")) && datosGuardados) {
         const datosFinales = JSON.parse(datosGuardados);
         document.getElementById("menuOpciones").style.display = "none";
         document.getElementById("ventanaCortinaLimpia").style.display = "block";
-        
-        // CORREGIDO: Se envolvieron las etiquetas HTML usando comillas invertidas ``
         document.getElementById("bloqueTextoVisualLimpio").innerHTML = `
-            <div style="border: 4px solid #3b82f6; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 15px auto;"></div> 
+            <div style="border: 4px solid #3b82f6; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto 15px auto;"></div>
             <p>Procesando documentos...</p>
         `;
-        
         fetch('/api/asistente', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
@@ -266,12 +256,10 @@ window.addEventListener("DOMContentLoaded", () => {
         .then(res => res.json())
         .then(data => {
             localStorage.removeItem("datos_tramite_pagado");
-            
-            // CORREGIDO: Se envolvieron las etiquetas HTML usando comillas invertidas ``
+            // ACTUALIZADO: Muestra las instrucciones completas devueltas por tu backend Flask
             document.getElementById("bloqueTextoVisualLimpio").innerHTML = `
-                <p style='color:#4ade80;'>¡Documento procesado con éxito!</p>
+                <div style="text-align:left; font-size:14px; color:#cbd5e1; background:#0f172a; padding:15px; border-radius:10px; border:1px solid #334155;">${data.respuesta}</div>
             `;
-            
             document.getElementById("contenedorBotonDescarga").style.display = "block";
             document.getElementById("btnDescargarPdfReal").onclick = () => {
                 window.location.href = data.archivo_url;
@@ -282,3 +270,6 @@ window.addEventListener("DOMContentLoaded", () => {
         });
     }
 });
+</script>
+</body>
+</html>
