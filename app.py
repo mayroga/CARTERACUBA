@@ -2,7 +2,7 @@ import os
 from flask import Flask, render_template, request, jsonify, session
 from pypdf import PdfReader, PdfWriter
 import google.generativeai as genai
-import openai
+from openai import OpenAI  # <-- CORREGIDO: Importación moderna de OpenAI
 import stripe
 
 app = Flask(__name__)
@@ -14,32 +14,36 @@ app.secret_key = os.getenv("SECRET_KEY", "carteracuba_firm_key_123")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "")
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY", "")
-DEV_USER = os.getenv("DEV_USER", "admin")  
-DEV_PASS = os.getenv("DEV_PASS", "root123") 
+DEV_USER = os.getenv("DEV_USER", "admin")
+DEV_PASS = os.getenv("DEV_PASS", "root123")
 
 # TUS PARÁMETROS DE PRECIOS STRIPE EXACTOS CONFIGURADOS EN RENDER
 STRIPE_PRICE_AJUSTE = os.getenv("STRIPE_PRICE_ID1", "")
 STRIPE_PRICE_PASAPORTE = os.getenv("STRIPE_PRICE_ID2", "")
 
-# Inicializar las APIs si los parámetros están presentes en el entorno
+# Inicializar las APIs e instancias si los parámetros están presentes
 if GEMINI_API_KEY:
     genai.configure(api_key=GEMINI_API_KEY)
+
+# CORREGIDO: Instanciación del cliente moderno de OpenAI (toma la API key del entorno de Render automáticamente)
+openai_client = None
 if OPENAI_API_KEY:
-    openai.api_key = OPENAI_API_KEY
+    openai_client = OpenAI(api_key=OPENAI_API_KEY)
+
 if STRIPE_SECRET_KEY:
     stripe.api_key = STRIPE_SECRET_KEY
 
 def traducir_texto_con_respaldo(texto_espanol):
     """
-    Motor Dual Inteligente: Traduce con Gemini. 
-    Usa OpenAI como Fallback/Respaldo si falla Google.
+    Motor Dual Inteligente: Traduce con Gemini. Usa OpenAI como Fallback/Respaldo si falla Google.
     """
     instruccion_sistema = "Traduce al inglés formal para trámites gubernamentales migratorios en EE. UU. Traduce únicamente el texto provisto, sin añadir comentarios, explicaciones ni introducciones."
-    
+
     # --- INTENTO 1: GEMINI (Motor Principal) ---
     if GEMINI_API_KEY:
         try:
-            model = genai.GenerativeModel('gemini-pro')
+            # CORREGIDO: Usando 'gemini-1.5-flash', el modelo estable y activo
+            model = genai.GenerativeModel('gemini-1.5-flash')
             prompt_completo = f"{instruccion_sistema}\n\nTexto a traducir:\n{texto_espanol}"
             respuesta_gemini = model.generate_content(prompt_completo)
             if respuesta_gemini.text:
@@ -48,19 +52,21 @@ def traducir_texto_con_respaldo(texto_espanol):
             print(f"Error en Gemini principal: {e}. Activando respaldo...")
 
     # --- INTENTO 2: OPENAI (Respaldo) ---
-    if OPENAI_API_KEY:
+    if openai_client:
         try:
-            completar_ia = openai.ChatCompletion.create(
-                model="gpt-3.5-turbo",
+            # CORREGIDO: Nueva sintaxis oficial v1.0.0+ con un modelo vigente y económico
+            completar_ia = openai_client.chat.completions.create(
+                model="gpt-4o-mini",
                 messages=[
                     {"role": "system", "content": instruccion_sistema},
                     {"role": "user", "content": texto_espanol}
                 ]
             )
-            return completar_ia.choices.message['content'].strip()
+            # CORREGIDO: Acceso a propiedades del objeto de forma nativa (.choices[0] en lugar de diccionario)
+            return completar_ia.choices[0].message.content.strip()
         except Exception as e:
             print(f"Error en OpenAI de respaldo: {e}")
-            
+
     # Retorno de emergencia si ambas APIs fallan
     return texto_espanol
 
@@ -74,7 +80,6 @@ def login_dev():
     datos = request.json
     usuario_ingresado = datos.get("username", "")
     clave_ingresada = datos.get("password", "")
-    
     if usuario_ingresado == DEV_USER and clave_ingresada == DEV_PASS:
         session['admin_logeado'] = True
         return jsonify({"status": "success", "redirect": "/panel_control_oculto"})
@@ -86,21 +91,16 @@ def login_dev():
 def crear_sesion_pago():
     datos = request.json
     tipo_tramite = datos.get("tramite_tipo")
-    
-    # Determinar qué Price ID de Render usar según tus variables de entorno exactas
     id_precio_elegido = STRIPE_PRICE_AJUSTE if tipo_tramite == "ajuste_cubano_i485" else STRIPE_PRICE_PASAPORTE
     
     if not id_precio_elegido:
         return jsonify({"error": "Configuración de precio (Price ID) no encontrada en Render."}), 400
-
     try:
-        # Generar la pasarela de cobro seguro alojada por Stripe
         session_checkout = stripe.checkout.Session.create(
             payment_method_types=['card'],
             line_items=[{'price': id_precio_elegido, 'quantity': 1}],
             mode='payment',
-            # Al completar el pago, Stripe devuelve al cliente redirigiendo con éxito a tu dominio
-            success_url='https://carteracuba.onrender.com' + tipo_tramite,
+            success_url='https://onrender.com' + tipo_tramite,
             cancel_url='https://carteracuba.onrender.com',
         )
         return jsonify({"url": session_checkout.url})
@@ -112,8 +112,7 @@ def crear_sesion_pago():
 def asistente():
     datos_usuario = request.json
     tipo_tramite = datos_usuario.get("tramite_tipo", "ajuste_cubano_i485")
-    
-    # Asegurar la existencia de los directorios de archivos estáticos en tu servidor de Render
+
     os.makedirs("static/plantillas", exist_ok=True)
     os.makedirs("static/descargas", exist_ok=True)
 
@@ -125,21 +124,20 @@ def asistente():
         anumber = datos_usuario.get("anumber", "")
         empleo_espanol = datos_usuario.get("empleo", "")
 
-        # Procesar traducción a través del ecosistema cognitivo dual
         empleo_ingles = "N/A"
         if empleo_espanol:
             empleo_ingles = traducir_texto_con_respaldo(empleo_espanol)
-
+            
         ruta_plantilla = "static/plantillas/i485_base.pdf"
         ruta_salida = f"static/descargas/i485_{nombre}_{apellidos}.pdf"
-        
+
         if os.path.exists(ruta_plantilla):
             lector_pdf = PdfReader(ruta_plantilla)
             escritor_pdf = PdfWriter()
+            
             for pagina in lector_pdf.pages:
                 escritor_pdf.add_page(pagina)
-                
-            # Estampar los datos en las casillas interactivas del PDF oficial de USCIS
+
             campos_mapeados_pdf = {
                 "Part1_FamilyName": apellidos,
                 "Part1_GivenName": nombre,
@@ -148,10 +146,16 @@ def asistente():
                 "Part1_CountryOfBirth": "CUBA",
                 "Part1_EmploymentHistory": empleo_ingles
             }
-            escritor_pdf.update_page_form_field_values(escritor_pdf.pages, campos_mapeados_pdf)
-            with open(ruta_salida, "wb") as archivo_salida:
-                escritor_pdf.write(archivo_salida)
-            url_descarga = f"/{ruta_salida}"
+            
+            # CORREGIDO: Control preventivo para evitar el error 500 si el archivo base no es un formulario rellenable
+            try:
+                escritor_pdf.update_page_form_field_values(escritor_pdf.pages, campos_mapeados_pdf)
+                with open(ruta_salida, "wb") as archivo_salida:
+                    escritor_pdf.write(archivo_salida)
+                url_descarga = f"/{ruta_salida}"
+            except Exception as error_pdf:
+                print(f"Error crítico al estampar PDF de Ajuste: {error_pdf}")
+                url_descarga = "#"
         else:
             url_descarga = "#"
 
@@ -178,10 +182,10 @@ def asistente():
         if os.path.exists(ruta_plantilla_pasaporte):
             lector_pdf = PdfReader(ruta_plantilla_pasaporte)
             escritor_pdf = PdfWriter()
+            
             for pagina in lector_pdf.pages:
                 escritor_pdf.add_page(pagina)
-                
-            # Estampar los datos en las casillas correspondientes a la planilla de la Embajada
+
             campos_pasaporte_pdf = {
                 "Nombres": nombre,
                 "Apellidos": apellidos,
@@ -190,10 +194,16 @@ def asistente():
                 "ProvinciaNacimiento": provincia,
                 "FechaSalidaCuba": salida_cuba
             }
-            escritor_pdf.update_page_form_field_values(escritor_pdf.pages, campos_pasaporte_pdf)
-            with open(ruta_salida_pasaporte, "wb") as archivo_salida:
-                escritor_pdf.write(archivo_salida)
-            url_descarga = f"/{ruta_salida_pasaporte}"
+            
+            # CORREGIDO: Control preventivo para evitar el error 500 si el archivo base no es un formulario rellenable
+            try:
+                escritor_pdf.update_page_form_field_values(escritor_pdf.pages, campos_pasaporte_pdf)
+                with open(ruta_salida_pasaporte, "wb") as archivo_salida:
+                    escritor_pdf.write(archivo_salida)
+                url_descarga = f"/{ruta_salida_pasaporte}"
+            except Exception as error_pdf:
+                print(f"Error crítico al estampar PDF de Pasaporte: {error_pdf}")
+                url_descarga = "#"
         else:
             url_descarga = "#"
 
