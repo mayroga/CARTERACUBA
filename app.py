@@ -70,9 +70,22 @@ def traducir_texto_con_respaldo(texto_espanol):
     # Retorno de emergencia si ambas APIs fallan
     return texto_espanol
 
+# POR ESTO:
 @app.route('/')
 def home():
-    return render_template('index.html')
+    from pypdf import PdfReader
+    try:
+        # Esto leerá tu archivo real en Render
+        lector = PdfReader("static/plantillas/i485_base.pdf")
+        campos = lector.get_fields()
+        # Si encuentra casillas interactivas, las listará en la pantalla
+        if campos:
+            lista_campos = list(campos.keys())
+            return f"<h1>Campos encontrados en tu PDF:</h1><p>{'<br>'.join(lista_campos)}</p>"
+        else:
+            return "<h1>Error: Tu PDF no tiene ningun campo interactivo. Esta plano.</h1>"
+    except Exception as e:
+        return f"<h1>Error al leer el archivo:</h1><p>{str(e)}</p>"
 
 # ================= LOGIN DE DESARROLLADOR =================
 @app.route('/login_dev', methods=['POST'])
