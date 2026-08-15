@@ -1,5 +1,5 @@
 import os
-from flask import Flask, render_template, request, jsonify, session, send_from_directory # CORREGIDO: Importado send_from_directory
+from flask import Flask, render_template, request, jsonify, session, send_from_directory
 from pypdf import PdfReader, PdfWriter
 import google.generativeai as genai
 from openai import OpenAI
@@ -37,7 +37,7 @@ def traducir_texto_con_respaldo(texto_espanol):
     Motor Dual Inteligente: Traduce con Gemini. Usa OpenAI como Fallback/Respaldo si falla Google.
     """
     instruccion_sistema = "Traduce al inglés formal para trámites gubernamentales migratorios en EE. UU. Traduce únicamente el texto provisto, sin añadir comentarios, explicaciones ni introducciones."
-
+    
     if GEMINI_API_KEY:
         try:
             model = genai.GenerativeModel('gemini-1.5-flash')
@@ -67,7 +67,7 @@ def traducir_texto_con_respaldo(texto_espanol):
 def home():
     return render_template('index.html')
 
-# ================= LOGIN DE DESARROLLADOR =================
+# ================= LOGIN DE DESARROLLADOR ORIGINAL =================
 @app.route('/login_dev', methods=['POST'])
 def login_dev():
     datos = request.json
@@ -78,6 +78,19 @@ def login_dev():
         return jsonify({"status": "success", "redirect": "/panel_control_oculto"})
     else:
         return jsonify({"status": "error", "message": "Credenciales de la LLC incorrectas."})
+
+# ================= NUEVO: ENDPOINT DE ACCESO GRATUITO DESARROLLADOR =================
+@app.route('/api/dev_bypass', methods=['POST'])
+def dev_bypass():
+    """Valida el usuario y contraseña de Render para procesar el documento gratis."""
+    datos = request.json or {}
+    usuario = datos.get("usuario", "")
+    clave = datos.get("password", "")
+    
+    if usuario == DEV_USER and clave == DEV_PASS:
+        return jsonify({"acceso": True, "mensaje": "Autenticación de desarrollador correcta."})
+    else:
+        return jsonify({"acceso": False, "error": "Usuario o contraseña de desarrollo incorrectos."}), 401
 
 # ================= 1. RUTA PARA INICIAR EL COBRO CON STRIPE =================
 @app.route('/api/crear_sesion_pago', methods=['POST'])
@@ -92,8 +105,8 @@ def crear_sesion_pago():
             payment_method_types=['card'],
             line_items=[{'price': id_precio_elegido, 'quantity': 1}],
             mode='payment',
-            # CORREGIDO: Se agregó la barra '/' para que la URL se concatene correctamente
-            success_url='https://carteracuba.onrender.com' + tipo_tramite,
+            # CORREGIDO: Se agregó la barra '/' para evitar errores de concatenación en la URL
+            success_url='https://onrender.com' + tipo_tramite,
             cancel_url='https://carteracuba.onrender.com',
         )
         return jsonify({"url": session_checkout.url})
@@ -144,7 +157,7 @@ def asistente():
                 url_descarga = f"/{ruta_salida}"
             except Exception as error_pdf:
                 print(f"Error crítico al estampar PDF de Ajuste: {error_pdf}")
-                url_descarga = f"/{ruta_plantilla}" # CORREGIDO: Si falla, descarga la plantilla limpia en vez de '#'
+                url_descarga = f"/{ruta_plantilla}"
         else:
             url_descarga = "#"
             
@@ -189,19 +202,18 @@ def asistente():
                 url_descarga = f"/{ruta_salida_pasaporte}"
             except Exception as error_pdf:
                 print(f"Error crítico al estampar PDF de Pasaporte: {error_pdf}")
-                url_descarga = f"/{ruta_plantilla_pasaporte}" # CORREGIDO: Si falla, descarga la plantilla limpia en vez de '#'
+                url_descarga = f"/{ruta_plantilla_pasaporte}"
         else:
             url_descarga = "#"
-            
-        instrucciones_pasaporte = f"""
-        <strong>Planilla Consular de Cuba Preparada</strong><br>
-        • <strong>Solicitante:</strong> {nombre} {apellidos}<br>
-        • <strong>Servicio Solicitado:</strong> {tipo_solicitud.upper()}<br><br>
-        <em>La solicitud ha sido mecanografiada en el formato oficial de la Embajada de Cuba. Descargue el archivo, imprímalo, firme dentro del recuadro con tinta negra sin tocar los bordes y adjunte sus fotos tipo visa fondo blanco para su envío.</em>
-        """
-        return jsonify({"respuesta": instrucciones_pasaporte, "archivo_url": url_descarga})
+    instrucciones_pasaporte = f""" 
+    <strong>Planilla Consular de Cuba Preparada</strong><br> 
+    • <strong>Solicitante:</strong> {nombre} {apellidos}<br> 
+    • <strong>Servicio Solicitado:</strong> {tipo_solicitud.upper()}<br><br> 
+    <em>La solicitud ha sido mecanografiada en el formato oficial de la Embajada de Cuba. Descargue el archivo, imprímalo, firme dentro del recuadro con tinta negra sin tocar los bordes y adjunte sus fotos tipo visa fondo blanco para su envío.</em> 
+    """
+    return jsonify({"respuesta": instrucciones_pasaporte, "archivo_url": url_descarga})
 
-# ================= 3. MANEJO CENTRALIZADO DE DESCARGAS (NUEVO) =================
+# ================= 3. MANEJO CENTRALIZADO DE DESCARGAS =================
 @app.route('/static/descargas/<path:filename>')
 def descargar_archivo(filename):
     """Obliga al navegador del cliente a descargar el archivo en vez de abrir una ventana rota."""
@@ -209,4 +221,4 @@ def descargar_archivo(filename):
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
-
+            
