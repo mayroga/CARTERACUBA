@@ -32,22 +32,34 @@ if OPENAI_API_KEY:
 if STRIPE_SECRET_KEY:
     stripe.api_key = STRIPE_SECRET_KEY
 
+
 def traducir_texto_con_respaldo(texto_espanol):
     """
-    Motor Dual Inteligente: Traduce con Gemini. Usa OpenAI como Fallback/Respaldo si falla Google.
+    VALOR AÑADIDO CENTRAL: Motor Cognitivo Inteligente que traduce del Español 
+    al Inglés Técnico/Formal Gubernamental exigido por USCIS y agencias de EE.UU.
+    Usa Gemini 1.5 Flash como principal y OpenAI GPT-4o-Mini como respaldo.
     """
-    instruccion_sistema = "Traduce al inglés formal para trámites gubernamentales migratorios en EE. UU. Traduce únicamente el texto provisto, sin añadir comentarios, explicaciones ni introducciones."
-    
+    if not texto_espanol or texto_espanol.strip() == "":
+        return "N/A"
+        
+    instruccion_sistema = (
+        "Translate the following text into formal, technical English for US government immigration paperwork. "
+        "Do not include any conversational filler, explanations, preambles, or notes. "
+        "Provide only the direct translation, preserving dates, acronyms, or numbers exactly as given."
+    )
+
+    # --- INTENTO 1: GEMINI 1.5 FLASH (Motor Principal) ---
     if GEMINI_API_KEY:
         try:
             model = genai.GenerativeModel('gemini-1.5-flash')
-            prompt_completo = f"{instruccion_sistema}\n\nTexto a traducir:\n{texto_espanol}"
+            prompt_completo = f"{instruccion_sistema}\n\nTexto original en español:\n{texto_espanol}"
             respuesta_gemini = model.generate_content(prompt_completo)
             if respuesta_gemini.text:
                 return respuesta_gemini.text.strip()
         except Exception as e:
-            print(f"Error en Gemini principal: {e}. Activando respaldo...")
+            print(f"Error en Gemini principal: {e}. Activando respaldo automático...")
 
+    # --- INTENTO 2: OPENAI GPT-4o-MINI (Respaldo) ---
     if openai_client:
         try:
             completar_ia = openai_client.chat.completions.create(
@@ -61,16 +73,20 @@ def traducir_texto_con_respaldo(texto_espanol):
         except Exception as e:
             print(f"Error en OpenAI de respaldo: {e}")
 
+    # Retorno de emergencia si ambas inteligencias artificiales fallan
     return texto_espanol
+
 
 @app.route('/')
 def home():
+    """Carga de la interfaz web adaptada para agencias automatizadas."""
     return render_template('index.html')
 
-# ================= LOGIN DE DESARROLLADOR ORIGINAL =================
+
+# ================= LOGIN DE DESARROLLADOR TRADICIONAL =================
 @app.route('/login_dev', methods=['POST'])
 def login_dev():
-    datos = request.json
+    datos = request.json or {}
     usuario_ingresado = datos.get("username", "")
     clave_ingresada = datos.get("password", "")
     if usuario_ingresado == DEV_USER and clave_ingresada == DEV_PASS:
@@ -79,10 +95,11 @@ def login_dev():
     else:
         return jsonify({"status": "error", "message": "Credenciales de la LLC incorrectas."})
 
-# ================= NUEVO: ENDPOINT DE ACCESO GRATUITO DESARROLLADOR =================
+
+# ================= RUTA DE VALIDACIÓN DE CREDENCIALES BYPASS DEV =================
 @app.route('/api/dev_bypass', methods=['POST'])
 def dev_bypass():
-    """Valida el usuario y contraseña de Render para procesar el documento gratis."""
+    """Valida de forma asíncrona el usuario y clave de Render para saltar Stripe gratis."""
     datos = request.json or {}
     usuario = datos.get("usuario", "")
     clave = datos.get("password", "")
@@ -90,13 +107,14 @@ def dev_bypass():
     if usuario == DEV_USER and clave == DEV_PASS:
         return jsonify({"acceso": True, "mensaje": "Autenticación de desarrollador correcta."})
     else:
-        return jsonify({"acceso": False, "error": "Usuario o contraseña de desarrollo incorrectos."}), 401
+        return jsonify({"acceso": False, "error": "Credenciales de desarrollo incorrectas."}), 401
+
 
 # ================= 1. RUTA PARA INICIAR EL COBRO CON STRIPE =================
 @app.route('/api/crear_sesion_pago', methods=['POST'])
 def crear_sesion_pago():
-    datos = request.json
-    tipo_tramite = datos.get("tramite_tipo")
+    datos = request.json or {}
+    tipo_tramite = datos.get("tramite_tipo", "")
     id_precio_elegido = STRIPE_PRICE_AJUSTE if tipo_tramite == "ajuste_cubano_i485" else STRIPE_PRICE_PASAPORTE
     if not id_precio_elegido:
         return jsonify({"error": "Configuración de precio (Price ID) no encontrada en Render."}), 400
@@ -105,56 +123,85 @@ def crear_sesion_pago():
             payment_method_types=['card'],
             line_items=[{'price': id_precio_elegido, 'quantity': 1}],
             mode='payment',
-            # CORREGIDO: Se agregó la barra '/' para evitar errores de concatenación en la URL
             success_url='https://onrender.com' + tipo_tramite,
-            cancel_url='https://carteracuba.onrender.com',
+            cancel_url='https://onrender.com',
         )
         return jsonify({"url": session_checkout.url})
     except Exception as e:
         return jsonify({"error": str(e)}), 400
-
-# ================= 2. ENRUTADOR PRINCIPAL POST-PAGO DE TRÁMITES =================
+# ================= 2. ENRUTADOR PRINCIPAL POST-PAGO Y PROCESAMIENTO =================
 @app.route('/api/asistente', methods=['POST'])
 def asistente():
-    datos_usuario = request.json
+    datos_usuario = request.json or {}
     tipo_tramite = datos_usuario.get("tramite_tipo", "ajuste_cubano_i485")
+    
     os.makedirs("static/plantillas", exist_ok=True)
     os.makedirs("static/descargas", exist_ok=True)
 
     # ------------------ FLUJO 1: LEY DE AJUSTE CUBANO (I-485) ------------------
     if tipo_tramite == "ajuste_cubano_i485":
-        nombre = datos_usuario.get("nombre", "")
-        apellidos = datos_usuario.get("apellidos", "")
+        apellidos = datos_usuario.get("apellidos", "").upper()
+        nombre = datos_usuario.get("nombre", "").upper()
+        segundo_nombre = datos_usuario.get("segundo_nombre", "").upper()
         nacimiento = datos_usuario.get("nacimiento", "")
+        sexo = datos_usuario.get("sexo", "")
+        ciudad_nacimiento = datos_usuario.get("ciudad_nacimiento", "").upper()
         anumber = datos_usuario.get("anumber", "")
-        empleo_espanol = datos_usuario.get("empleo", "")
-        empleo_ingles = "N/A"
-        if empleo_espanol:
-            empleo_ingles = traducir_texto_con_respaldo(empleo_espanol)
-            
-        ruta_plantilla = "static/plantillas/i485_base.pdf"
-        ruta_salida = f"static/descargas/i485_{nombre}_{apellidos}.pdf"
+        uscis_online = datos_usuario.get("uscis_online", "")
         
+        pasaporte_num = datos_usuario.get("pasaporte_num", "").upper()
+        pasaporte_exp = datos_usuario.get("pasaporte_exp", "")
+        fecha_llegada = datos_usuario.get("fecha_llegada", "")
+        puerto_entrada_es = datos_usuario.get("puerto_entrada", "")
+        estatus_entrada_es = datos_usuario.get("estatus_entrada", "")
+        empleo_usa = datos_usuario.get("empleo_usa", "").upper()
+        empleo_cuba_es = datos_usuario.get("empleo", "")
+        arrestado = datos_usuario.get("arrestado", "NO")
+        trabajo_ilegal = datos_usuario.get("trabajo_ilegal", "NO")
+
+        # VALOR AÑADIDO: Traducción automática con respaldo de IA al inglés técnico gubernamental
+        puerto_entrada_en = traducir_texto_con_respaldo(puerto_entrada_es) if puerto_entrada_es else ""
+        estatus_entrada_en = traducir_texto_con_respaldo(estatus_entrada_es) if estatus_entrada_es else ""
+        empleo_cuba_en = traducir_texto_con_respaldo(empleo_cuba_es) if empleo_cuba_es else "N/A"
+
+        ruta_plantilla = "static/plantillas/i485_base.pdf"
+        nombre_archivo_salida = f"i485_{nombre}_{apellidos}.pdf".replace(" ", "_")
+        ruta_salida = f"static/descargas/{nombre_archivo_salida}"
+
         if os.path.exists(ruta_plantilla):
             lector_pdf = PdfReader(ruta_plantilla)
             escritor_pdf = PdfWriter()
             for pagina in lector_pdf.pages:
                 escritor_pdf.add_page(pagina)
                 
+            # Mapeo completo e inyección invisible en el PDF escribible de USCIS
             campos_mapeados_pdf = {
                 "form1.#subform.Pt1Line1_FamilyName": apellidos,
                 "form1.#subform.Pt1Line1_GivenName": nombre,
+                "form1.#subform.Pt1Line1_MiddleName": segundo_nombre,
                 "form1.#subform.Pt1Line3_DOB": nacimiento,
                 "form1.#subform.AlienNumber": anumber if anumber else "",
                 "form1.#subform.Pt1Line4_AlienNumber": anumber if anumber else "",
                 "form1.#subform.Pt1Line7_CountryOfBirth": "CUBA",
-                "form1.#subform.Pt1Line8_CountryofCitizenshipNationality": "CUBA"
+                "form1.#subform.Pt1Line8_CountryofCitizenshipNationality": "CUBA",
+                "form1.#subform.CityOfBirth": ciudad_nacimiento,
+                "form1.#subform.Gender": sexo,
+                "form1.#subform.USCISOnlineNumber": uscis_online,
+                "form1.#subform.PassportNumber": pasaporte_num,
+                "form1.#subform.PassportExp": pasaporte_exp,
+                "form1.#subform.DateOfLastArrival": fecha_llegada,
+                "form1.#subform.PortOfEntry": puerto_entrada_en,
+                "form1.#subform.StatusAtArrival": estatus_entrada_en,
+                "form1.#subform.CurrentEmployer": empleo_usa,
+                "form1.#subform.JobHistoryCuba": empleo_cuba_en,
+                "form1.#subform.ArrestedCheck": arrestado,
+                "form1.#subform.IllegalWorkCheck": trabajo_ilegal
             }
             try:
                 escritor_pdf.update_page_form_field_values(escritor_pdf.pages, campos_mapeados_pdf)
                 with open(ruta_salida, "wb") as archivo_salida:
                     escritor_pdf.write(archivo_salida)
-                url_descarga = f"/{ruta_salida}"
+                url_descarga = f"/static/descargas/{nombre_archivo_salida}"
             except Exception as error_pdf:
                 print(f"Error crítico al estampar PDF de Ajuste: {error_pdf}")
                 url_descarga = f"/{ruta_plantilla}"
@@ -162,24 +209,26 @@ def asistente():
             url_descarga = "#"
             
         instrucciones_cliente = f"""
-        <strong>Mapeo de Datos Concluido Exitosamente</strong><br>
-        • <strong>Solicitante:</strong> {nombre} {apellidos}<br>
-        • <strong>Historial traducido por IA:</strong> {empleo_ingles}<br><br>
-        <em>El sistema ha volcado su información en español al documento federal público I-485 en inglés de forma exacta. Su descarga está disponible abajo.</em>
+        <strong>Formulario I-485 Automatizado y Traducido Exitosamente</strong><br>
+        • <strong>Solicitante:</strong> {nombre} {segundo_nombre} {apellidos}<br>
+        • <strong>Traducción de Ocupación en Cuba:</strong> {empleo_cuba_en}<br>
+        • <strong>Puerto de Entrada Traducido:</strong> {puerto_entrada_en}<br><br>
+        <em>Toda su información fue mecanografiada por el motor inteligente. Descargue su documento, verifique los datos inyectados, imprímalo y firme a mano con tinta negra en la casilla correspondiente.</em>
         """
         return jsonify({"respuesta": instrucciones_cliente, "archivo_url": url_descarga})
 
     # ------------------ FLUJO 2: PASAPORTE CUBANO CONSULAR ------------------
     elif tipo_tramite == "pasaporte_cubano_consular":
-        nombre = datos_usuario.get("nombre", "")
-        apellidos = datos_usuario.get("apellidos", "")
-        tipo_solicitud = datos_usuario.get("tipo", "")
-        pasaporte_num = datos_usuario.get("pasaporte_num", "")
-        provincia = datos_usuario.get("provincia", "")
+        nombre = datos_usuario.get("nombre", "").upper()
+        apellidos = datos_usuario.get("apellidos", "").upper()
+        tipo_solicitud = datos_usuario.get("tipo", "").upper()
+        pasaporte_num = datos_usuario.get("pasaporte_num", "").upper()
+        provincia = datos_usuario.get("provincia", "").upper()
         salida_cuba = datos_usuario.get("salida_cuba", "")
         
         ruta_plantilla_pasaporte = "static/plantillas/pasaporte_cuba_base.pdf"
-        ruta_salida_pasaporte = f"static/descargas/solicitud_pasaporte_{nombre}.pdf"
+        nombre_archivo_pasaporte = f"solicitud_pasaporte_{nombre}_{apellidos}.pdf".replace(" ", "_")
+        ruta_salida_pasaporte = f"static/descargas/{nombre_archivo_pasaporte}"
         
         if os.path.exists(ruta_plantilla_pasaporte):
             lector_pdf = PdfReader(ruta_plantilla_pasaporte)
@@ -190,7 +239,7 @@ def asistente():
             campos_pasaporte_pdf = {
                 "Nombres": nombre,
                 "Apellidos": apellidos,
-                "TipoTramite": tipo_solicitud.upper(),
+                "TipoTramite": tipo_solicitud,
                 "NoPasaporte": pasaporte_num if pasaporte_num else "N/A",
                 "ProvinciaNacimiento": provincia,
                 "FechaSalidaCuba": salida_cuba
@@ -199,26 +248,30 @@ def asistente():
                 escritor_pdf.update_page_form_field_values(escritor_pdf.pages, campos_pasaporte_pdf)
                 with open(ruta_salida_pasaporte, "wb") as archivo_salida:
                     escritor_pdf.write(archivo_salida)
-                url_descarga = f"/{ruta_salida_pasaporte}"
+                url_descarga = f"/static/descargas/{nombre_archivo_pasaporte}"
             except Exception as error_pdf:
                 print(f"Error crítico al estampar PDF de Pasaporte: {error_pdf}")
                 url_descarga = f"/{ruta_plantilla_pasaporte}"
         else:
             url_descarga = "#"
-    instrucciones_pasaporte = f""" 
-    <strong>Planilla Consular de Cuba Preparada</strong><br> 
-    • <strong>Solicitante:</strong> {nombre} {apellidos}<br> 
-    • <strong>Servicio Solicitado:</strong> {tipo_solicitud.upper()}<br><br> 
-    <em>La solicitud ha sido mecanografiada en el formato oficial de la Embajada de Cuba. Descargue el archivo, imprímalo, firme dentro del recuadro con tinta negra sin tocar los bordes y adjunte sus fotos tipo visa fondo blanco para su envío.</em> 
-    """
-    return jsonify({"respuesta": instrucciones_pasaporte, "archivo_url": url_descarga})
+            
+        instrucciones_pasaporte = f"""
+        <strong>Planilla Consular de Cuba Automatizada</strong><br>
+        • <strong>Solicitante:</strong> {nombre} {apellidos}<br>
+        • <strong>Servicio Consular Solicitado:</strong> {tipo_solicitud}<br><br>
+        <em>El formulario oficial se encuentra completamente rellenado por el sistema con sus datos normalizados. Descargue el archivo, imprímalo, adhiera su foto fondo blanco y firme únicamente dentro del recuadro con tinta negra sin tocar los bordes.</em>
+        """
+        return jsonify({"respuesta": instrucciones_pasaporte, "archivo_url": url_descarga})
+        
+    return jsonify({"error": "Tipo de trámite no reconocido por el sistema."}), 400
+
 
 # ================= 3. MANEJO CENTRALIZADO DE DESCARGAS =================
 @app.route('/static/descargas/<path:filename>')
 def descargar_archivo(filename):
-    """Obliga al navegador del cliente a descargar el archivo en vez de abrir una ventana rota."""
+    """Obliga al navegador del cliente a descargar el archivo en vez de abrir una pestaña rota."""
     return send_from_directory('static/descargas', filename, as_attachment=True)
+
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
-            
