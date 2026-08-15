@@ -1,5 +1,5 @@
 import os
-from flask import Flask, render_template, request, jsonify, session
+from flask import Flask, render_template, request, jsonify, session, send_from_directory # CORREGIDO: Importado send_from_directory
 from pypdf import PdfReader, PdfWriter
 import google.generativeai as genai
 from openai import OpenAI
@@ -38,7 +38,6 @@ def traducir_texto_con_respaldo(texto_espanol):
     """
     instruccion_sistema = "Traduce al inglés formal para trámites gubernamentales migratorios en EE. UU. Traduce únicamente el texto provisto, sin añadir comentarios, explicaciones ni introducciones."
 
-    # --- INTENTO 1: GEMINI (Motor Principal) ---
     if GEMINI_API_KEY:
         try:
             model = genai.GenerativeModel('gemini-1.5-flash')
@@ -49,7 +48,6 @@ def traducir_texto_con_respaldo(texto_espanol):
         except Exception as e:
             print(f"Error en Gemini principal: {e}. Activando respaldo...")
 
-    # --- INTENTO 2: OPENAI (Respaldo) ---
     if openai_client:
         try:
             completar_ia = openai_client.chat.completions.create(
@@ -94,7 +92,8 @@ def crear_sesion_pago():
             payment_method_types=['card'],
             line_items=[{'price': id_precio_elegido, 'quantity': 1}],
             mode='payment',
-            success_url='https://onrender.com' + tipo_tramite,
+            # CORREGIDO: Se agregó la barra '/' para que la URL se concatene correctamente
+            success_url='https://carteracuba.onrender.com' + tipo_tramite,
             cancel_url='https://carteracuba.onrender.com',
         )
         return jsonify({"url": session_checkout.url})
@@ -129,7 +128,6 @@ def asistente():
             for pagina in lector_pdf.pages:
                 escritor_pdf.add_page(pagina)
                 
-            # MAPEO ACTUALIZADO CON NOMBRES REALES DEL I-485
             campos_mapeados_pdf = {
                 "form1.#subform.Pt1Line1_FamilyName": apellidos,
                 "form1.#subform.Pt1Line1_GivenName": nombre,
@@ -146,7 +144,7 @@ def asistente():
                 url_descarga = f"/{ruta_salida}"
             except Exception as error_pdf:
                 print(f"Error crítico al estampar PDF de Ajuste: {error_pdf}")
-                url_descarga = "#"
+                url_descarga = f"/{ruta_plantilla}" # CORREGIDO: Si falla, descarga la plantilla limpia en vez de '#'
         else:
             url_descarga = "#"
             
@@ -176,7 +174,6 @@ def asistente():
             for pagina in lector_pdf.pages:
                 escritor_pdf.add_page(pagina)
                 
-            # MAPEO DE PASAPORTE (Ajustado a etiquetas estándar; si tu nueva plantilla da otros nombres, haz la prueba rápida)
             campos_pasaporte_pdf = {
                 "Nombres": nombre,
                 "Apellidos": apellidos,
@@ -192,7 +189,7 @@ def asistente():
                 url_descarga = f"/{ruta_salida_pasaporte}"
             except Exception as error_pdf:
                 print(f"Error crítico al estampar PDF de Pasaporte: {error_pdf}")
-                url_descarga = "#"
+                url_descarga = f"/{ruta_plantilla_pasaporte}" # CORREGIDO: Si falla, descarga la plantilla limpia en vez de '#'
         else:
             url_descarga = "#"
             
@@ -204,6 +201,11 @@ def asistente():
         """
         return jsonify({"respuesta": instrucciones_pasaporte, "archivo_url": url_descarga})
 
+# ================= 3. MANEJO CENTRALIZADO DE DESCARGAS (NUEVO) =================
+@app.route('/static/descargas/<path:filename>')
+def descargar_archivo(filename):
+    """Obliga al navegador del cliente a descargar el archivo en vez de abrir una ventana rota."""
+    return send_from_directory('static/descargas', filename, as_attachment=True)
+
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
 
